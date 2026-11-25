@@ -1,0 +1,384 @@
+{
+  "runtime": "158.0.8127.36",
+  "high": {
+    "at_ms": 1795600915193,
+    "height": 720,
+    "media_seconds": 0.121333
+  },
+  "low": {
+    "at_ms": 1795600919470,
+    "height": 360,
+    "media_seconds": 4.029295
+  },
+  "takeover": {
+    "at_ms": 1795600953699,
+    "height": 360,
+    "media_seconds": 38.258812
+  },
+  "live_signals": [
+    {
+      "kind": "waiting",
+      "at_ms": 1795600914736,
+      "media_seconds": 0,
+      "height": 0,
+      "seeking": false
+    },
+    {
+      "kind": "seeking",
+      "at_ms": 1795600915061,
+      "media_seconds": 0.121333,
+      "height": 720,
+      "seeking": true
+    },
+    {
+      "kind": "seeked",
+      "at_ms": 1795600915183,
+      "media_seconds": 0.121333,
+      "height": 720,
+      "seeking": false
+    },
+    {
+      "kind": "playing",
+      "at_ms": 1795600915185,
+      "media_seconds": 0.121333,
+      "height": 720,
+      "seeking": false
+    }
+  ],
+  "vod_seeks": [
+    30.011041,
+    52.014767
+  ],
+  "successful_segments": [
+    {
+      "at_ms": 1795600914788,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 0,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600914818,
+      "kind": "live",
+      "track": "720p",
+      "sequence": 0,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600915214,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 0,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600918791,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 1,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600922778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 2,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600926778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 3,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600930771,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 4,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600934776,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 5,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600938773,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 6,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600942782,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 7,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600946778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 8,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600950778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 9,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600954774,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 10,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600958778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 11,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600962786,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 12,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600966778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 13,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600970776,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 14,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600974793,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 15,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600978779,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 16,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600982774,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 17,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600986776,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 18,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600990785,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 19,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600994781,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 20,
+      "status": 200
+    },
+    {
+      "at_ms": 1795600998789,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 21,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601002781,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 22,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601006775,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 23,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601010779,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 24,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601014775,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 25,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601018779,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 26,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601022780,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 27,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601026778,
+      "kind": "live",
+      "track": "360p",
+      "sequence": 28,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601028910,
+      "kind": "vod",
+      "track": "360p",
+      "sequence": 0,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029011,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 7,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029031,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 8,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029046,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 9,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029082,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 10,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029097,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 11,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029124,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 12,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029148,
+      "kind": "vod",
+      "track": "360p",
+      "sequence": 13,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029168,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 14,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029185,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 15,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029209,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 16,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029221,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 17,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029238,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 18,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029267,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 19,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029281,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 20,
+      "status": 200
+    },
+    {
+      "at_ms": 1795601029347,
+      "kind": "vod",
+      "track": "720p",
+      "sequence": 21,
+      "status": 200
+    }
+  ],
+  "failed_segments": []
+}

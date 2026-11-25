@@ -1,0 +1,69 @@
+name: Media acceptance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: local-ci-root-only
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin --protocol=tcp ping --silent"
+          --health-interval=5s
+          --health-timeout=4s
+          --health-retries=24
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Check source and install FFmpeg
+        run: |
+          test -z "$(gofmt -l cmd internal)"
+          go vet ./...
+          node --check internal/web/ui/studio.js
+          node --check scripts/browser-rehearsal.cjs
+          sudo apt-get update -q
+          sudo apt-get install -y ffmpeg
+      - name: Create isolated integration databases
+        env:
+          MYSQL_CONTAINER: ${{ job.services.mysql.id }}
+        run: |
+          docker exec -i -e MYSQL_PWD=local-ci-root-only "$MYSQL_CONTAINER" mysql --user=root <<'SQL'
+          CREATE DATABASE media_catalog CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
+          CREATE DATABASE media_http CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
+          CREATE DATABASE media_upgrade CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
+          CREATE USER 'test_media'@'%' IDENTIFIED BY 'local-ci-app-only';
+          GRANT ALL PRIVILEGES ON media_catalog.* TO 'test_media'@'%';
+          GRANT ALL PRIVILEGES ON media_http.* TO 'test_media'@'%';
+          GRANT ALL PRIVILEGES ON media_upgrade.* TO 'test_media'@'%';
+          SQL
+      - name: MySQL, MPEG-TS, replay and subtitle tests
+        env:
+          MYSQL_TEST_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          export MEDIA_STREAM_TEST_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_catalog"
+          export MEDIA_STREAM_TEST_HTTP_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_http"
+          export MEDIA_STREAM_TEST_UPGRADE_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_upgrade"
+          export MEDIA_STREAM_TEST_FFMPEG="$(command -v ffmpeg)"
+          go test -race -count=1 -timeout 8m -v ./...
+      - name: Build and read executable version
+        run: |
+          go build -trimpath -o "$RUNNER_TEMP/media-stream" ./cmd/media-stream
+          "$RUNNER_TEMP/media-stream" version
