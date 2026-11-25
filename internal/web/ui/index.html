@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Stream · 直播工作台</title>
+  <link rel="stylesheet" href="/assets/studio.css">
+  <script defer src="/assets/hls.min.js"></script>
+  <script defer src="/assets/studio.js"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">Media Stream</a>
+    <form id="login" class="login">
+      <label for="token">访问凭据</label>
+      <input id="token" type="password" autocomplete="off" spellcheck="false" required>
+      <button type="submit">连接</button>
+    </form>
+    <div id="identity" hidden><span id="identity-text"></span><button id="sign-out" class="secondary">退出</button></div>
+  </header>
+  <main>
+    <div class="notice" id="notice" role="status" aria-live="polite">输入工作台凭据查看频道和回放。</div>
+    <div id="workspace" hidden>
+      <div class="heading">
+        <div><span class="eyebrow">直播与点播</span><h1>直播工作台</h1></div>
+        <button id="reload" class="secondary">刷新目录</button>
+      </div>
+      <div class="studio">
+        <aside class="panel directory">
+          <h2>节目目录</h2>
+          <div class="directory-section">
+            <h3>频道</h3>
+            <ul id="channels"></ul>
+            <button id="channels-more" class="secondary" hidden>更多频道</button>
+          </div>
+          <div class="directory-section">
+            <h3>回放</h3>
+            <ul id="recordings"></ul>
+            <button id="recordings-more" class="secondary" hidden>更多回放</button>
+          </div>
+          <details id="channel-form-section" hidden>
+            <summary>预约频道</summary>
+            <form id="channel-form">
+              <label>频道键 <input name="key" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9_.-]*" required></label>
+              <label>节目标题 <input name="title" maxlength="100" required></label>
+              <label>可开播时间 <input name="from" type="datetime-local" required></label>
+              <label>截止时间 <input name="until" type="datetime-local" required></label>
+              <button>保存预约</button>
+            </form>
+          </details>
+        </aside>
+        <section class="panel stage">
+          <div class="section-heading"><div><span id="selection-type" class="eyebrow">监看</span><h2 id="selection-title">选择频道或回放</h2></div><span id="state" class="state">待选择</span></div>
+          <video id="player" controls playsinline preload="metadata"></video>
+          <div class="controls">
+            <button id="watch" disabled>开始播放</button>
+            <label>画质 <select id="quality-level" disabled><option value="-1">自动</option></select></label>
+            <span id="player-stats" aria-live="polite"></span>
+          </div>
+          <div id="stream-facts" class="metrics" hidden>
+            <div><span>当前输入</span><strong id="active-source">—</strong></div>
+            <div><span>输入代际</span><strong id="source-epoch">—</strong></div>
+            <div><span>分片累计</span><strong id="sequence">—</strong></div>
+            <div><span>实际媒体时长</span><strong id="media-duration">—</strong></div>
+          </div>
+        </section>
+      </div>
+      <div class="panels">
+        <section class="panel action-panel">
+          <h2>节目操作</h2>
+          <p id="operation-empty">选择主体后显示可执行的操作。</p>
+          <form id="open-form" hidden>
+            <label>转码预设 <select name="preset"><option value="standard">720p + 360p</option><option value="low-bandwidth">360p + 240p</option></select></label>
+            <label>分片周期（秒） <input name="segment" type="number" min="1" max="10" value="4" required></label>
+            <label>主路时钟起点（毫秒） <input name="primary" type="number" min="0" value="0" required></label>
+            <label>备路时钟起点（毫秒） <input name="backup" type="number" min="0" value="0" required></label>
+            <label>推流授权（分钟） <input name="ttl" type="number" min="1" max="1440" value="120" required></label>
+            <button>打开会话</button>
+          </form>
+          <div id="live-actions" hidden>
+            <div class="buttons"><button id="prefer-primary" class="secondary">切主路</button><button id="prefer-backup" class="secondary">切备路</button><button id="end-stream" class="danger">结束并归档</button></div>
+            <form id="rotation-form">
+              <label>轮换输入 <select name="source"><option value="primary">主路</option><option value="backup">备路</option></select></label>
+              <label>当前代际 <input name="generation" type="number" min="1" value="1" required></label>
+              <label>时钟起点（毫秒） <input name="clock" type="number" min="0" value="0" required></label>
+              <button class="secondary">轮换凭据</button>
+            </form>
+          </div>
+          <pre id="grants" hidden></pre>
+          <div id="recording-actions" hidden>
+            <form id="caption-form">
+              <label>字幕语言 <input name="lang" value="zh-CN" maxlength="32" required></label>
+              <label>WebVTT 文件 <input name="subtitle" type="file" accept=".vtt,text/vtt" required></label>
+              <button class="secondary">导入字幕</button>
+            </form>
+            <form id="edit-form">
+              <label>起点（秒） <input name="from" type="number" step=".001" min="0" value="20" required></label>
+              <label>终点（秒） <input name="to" type="number" step=".001" min="0" value="40" required></label>
+              <label>字幕轨 <select name="caption" id="edit-caption"><option value="">无</option></select></label>
+              <button>提交剪辑</button>
+            </form>
+            <form id="visibility-form">
+              <label>回放可见截止 <input type="datetime-local" name="until" required></label>
+              <button class="secondary">设置到期时间</button>
+              <button type="button" class="danger" id="hide-recording">下架回放</button>
+            </form>
+          </div>
+          <ul id="edits" class="edits"></ul>
+          <button id="edits-more" class="secondary" hidden>更多剪辑</button>
+        </section>
+        <section class="panel ledger">
+          <h2>质量与事件</h2>
+          <dl id="quality-summary" class="quality-summary"></dl>
+          <ol id="events" class="events"></ol>
+          <button id="events-more" class="secondary" hidden>加载后续事件</button>
+        </section>
+      </div>
+      <section id="ops" class="panel operations" hidden>
+        <h2>运维概况</h2>
+        <div class="ops-grid"><div><h3>转码节点</h3><ul id="nodes"></ul></div><div><h3>租户小时流量</h3><ul id="usage"></ul></div></div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
