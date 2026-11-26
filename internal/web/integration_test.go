@@ -201,8 +201,28 @@ func TestMySQLFFmpegHTTPPlaybackAndClip(t *testing.T) {
 		!strings.Contains(subtitles, "00:00:01.200 --> 00:00:01.600") {
 		t.Fatalf("incorrect trimmed subtitles: %s", subtitles)
 	}
-	client.request("POST", "/api/recordings/"+id+"/visibility", editor, jsonInput(t, map[string]any{
-		"revision": rec.Revision, "hide": true}), nil, 200)
+	const batchPath = "/api/visibility-batches/live-replay-removal"
+	requestBatch := catalog.VisibilityBatchRequest{Hide: true, Targets: []catalog.VisibilityTarget{
+		{ID: rec.ID, Revision: rec.Revision},
+		{ID: "ffffffffffffffffffffffff", Revision: 1},
+	}}
+	client.request("PUT", batchPath, viewer, jsonInput(t, requestBatch), nil, 403)
+	prepared := parsed[catalog.VisibilityBatch](t, client.request("PUT", batchPath, editor, jsonInput(t, requestBatch), nil, 200))
+	if prepared.State != "prepared" || len(prepared.Items) != 2 {
+		t.Fatalf("unexpected recording batch: %+v", prepared)
+	}
+	client.request("GET", batchPath, provision("other", "editor"), nil, nil, 404)
+	client.request("GET", batchPath, owner, nil, nil, 404)
+	client.request("GET", vod+"/index.m3u8", viewer, nil, nil, 200)
+	// Discard a successful execute response and query by the original key.
+	client.request("POST", batchPath+"/execute", editor, nil, nil, 200)
+	saved := parsed[catalog.VisibilityBatch](t, client.request("GET", batchPath, editor, nil, nil, 200))
+	repeated := parsed[catalog.VisibilityBatch](t, client.request("POST", batchPath+"/execute", editor, nil, nil, 200))
+	if saved.State != "completed" || repeated.ID != saved.ID || saved.Processed != 2 || repeated.Processed != 2 ||
+		saved.Items[0].State != "applied" || saved.Items[0].AppliedRevision == nil || *saved.Items[0].AppliedRevision != rec.Revision+1 ||
+		saved.Items[1].State != "rejected" || saved.Items[1].Reason == nil || *saved.Items[1].Reason != "not_found" {
+		t.Fatalf("wrong media visibility receipts: %+v / %+v", saved, repeated)
+	}
 	client.request("GET", vod+"/index.m3u8", viewer, nil, nil, 404)
 	client.request("GET", clip+"/video.mp4", viewer, nil, nil, 200)
 	client.request("GET", clip+"/video.mp4", outsider, nil, nil, 404)

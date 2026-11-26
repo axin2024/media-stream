@@ -3,8 +3,10 @@ package catalog
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"errors"
 	"os"
+	"sync"
 	"testing"
 	"time"
 )
@@ -267,6 +269,7 @@ func TestMySQLUpgradePreservesSessionAndCredential(t *testing.T) {
 	ctx := t.Context()
 	owner := provision(t, db, "upgrade", "host", "owner")
 	channel, opened := openTestChannel(t, db, owner, "legacy")
+	ok(t, Migrate(os.Getenv("MEDIA_STREAM_TEST_UPGRADE_DSN"), 2))
 	ok(t, Migrate(os.Getenv("MEDIA_STREAM_TEST_UPGRADE_DSN"), 0))
 	ok(t, db.Ready(ctx))
 	session, err := db.Session(ctx, owner, opened.Session.ID)
@@ -279,4 +282,130 @@ func TestMySQLUpgradePreservesSessionAndCredential(t *testing.T) {
 	_, err = db.Ingest(ctx, identity, session.ID, 10_000, 1_000, fakeBlob("first after upgrade"))
 	ok(t, err)
 	ok(t, db.Schedule(ctx, session.ID))
+}
+
+func TestMySQLVisibilityBatchContinuesAfterAnItemCommits(t *testing.T) {
+	db := localCatalog(t, "MEDIA_STREAM_TEST_DSN", 0)
+	ctx := t.Context()
+	owner := provision(t, db, "batch-studio", "host", "owner")
+	editor := provision(t, db, owner.Tenant, "producer", "editor")
+	peer := provision(t, db, owner.Tenant, editor.Label, "editor")
+	other := provision(t, db, "batch-other", editor.Label, "editor")
+	viewer := provision(t, db, owner.Tenant, "audience", "viewer")
+	_, first := openTestChannel(t, db, owner, "show")
+	stream := first.Session.ID
+	_, err := db.db.ExecContext(ctx, `INSERT INTO recordings(id,session_id,state,duration_ms) VALUES(?,?,'published',1000)`, stream, stream)
+	ok(t, err)
+
+	// Change the selected version after preparation to exercise a conflict
+	// independently of the successful item in the same batch.
+	channel, err := db.CreateChannel(ctx, owner, Channel{
+		Key: "changed", Title: "Changed", From: time.Now().Add(-time.Minute), Until: time.Now().Add(time.Hour),
+	})
+	ok(t, err)
+	second, err := db.OpenSession(ctx, owner, channel.Key, "open-changed", Opening{Preset: "standard", SegmentMS: 1_000, ExpiresIn: 600})
+	ok(t, err)
+	stale := second.Session.ID
+	_, err = db.db.ExecContext(ctx, `INSERT INTO recordings(id,session_id,state,duration_ms) VALUES(?,?,'published',1000)`, stale, stale)
+	ok(t, err)
+
+	const requestKey = "hide-selected"
+	input := VisibilityBatchRequest{Hide: true, Targets: []VisibilityTarget{{stream, 1}, {stale, 1}, {key(), 1}}}
+	prepared, err := db.PrepareVisibilityBatch(ctx, editor, requestKey, input)
+	ok(t, err)
+	if prepared.State != "prepared" || prepared.Processed != 0 || len(prepared.Items) != 3 || prepared.Items[0].State != "not_started" {
+		t.Fatalf("unexpected preparation: %+v", prepared)
+	}
+	until := time.Now().Add(time.Hour)
+	_, err = db.SetVisibility(ctx, editor, stale, 1, &until, false)
+	ok(t, err)
+	_, err = db.Recording(ctx, viewer, stream)
+	ok(t, err)
+	for _, caller := range []Identity{peer, other} {
+		_, err := db.VisibilityBatch(ctx, caller, requestKey)
+		if !errors.Is(err, ErrMissing) {
+			t.Fatalf("receipt from another credential returned %v", err)
+		}
+		visible, err := db.VisibilityBatches(ctx, caller, 0)
+		ok(t, err)
+		if len(visible) != 0 {
+			t.Fatalf("batch history leaked: %+v", visible)
+		}
+	}
+	if _, err := db.ExecuteVisibilityBatch(ctx, viewer, requestKey); !errors.Is(err, ErrDenied) {
+		t.Fatalf("viewer execution returned %v", err)
+	}
+
+	done, err := transaction(ctx, db, func(tx *sql.Tx) (bool, error) {
+		return executeVisibilityItem(ctx, tx, editor, requestKey)
+	})
+	ok(t, err)
+	if done {
+		t.Fatal("first item completed the whole batch")
+	}
+	reopened, err := Open(ctx, os.Getenv("MEDIA_STREAM_TEST_DSN"), nil)
+	ok(t, err)
+	t.Cleanup(func() { reopened.Close() })
+	partial, err := reopened.VisibilityBatch(ctx, editor, requestKey)
+	ok(t, err)
+	if partial.State != "running" || partial.Processed != 1 || partial.Items[0].State != "applied" ||
+		partial.Items[1].State != "not_started" || partial.Items[2].State != "not_started" {
+		t.Fatalf("failed to recover the partial batch: %+v", partial)
+	}
+	var work sync.WaitGroup
+	errs := make(chan error, 2)
+	for _, runner := range []*Store{db, reopened} {
+		work.Go(func() {
+			_, err := runner.ExecuteVisibilityBatch(ctx, editor, requestKey)
+			errs <- err
+		})
+	}
+	work.Wait()
+	close(errs)
+	for err := range errs {
+		ok(t, err)
+	}
+	finished, err := db.PrepareVisibilityBatch(ctx, editor, requestKey, input)
+	ok(t, err)
+	if finished.ID != prepared.ID || finished.State != "completed" || finished.Processed != 3 ||
+		finished.Items[0].AppliedRevision == nil || *finished.Items[0].AppliedRevision != 2 ||
+		finished.Items[1].Reason == nil || *finished.Items[1].Reason != "revision_or_state_changed" ||
+		finished.Items[2].Reason == nil || *finished.Items[2].Reason != "not_found" {
+		t.Fatalf("unexpected recovered result: %+v", finished)
+	}
+	input.Targets = input.Targets[:1]
+	if _, err := db.PrepareVisibilityBatch(ctx, editor, requestKey, input); !errors.Is(err, ErrConflict) {
+		t.Fatalf("changed selection returned %v", err)
+	}
+	var auditCount, revision int
+	ok(t, db.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM session_events WHERE session_id=? AND kind='recording_visibility'
+		AND actor=? AND details->>'$.batch_key'=?`, stream, editor.Label, requestKey).Scan(&auditCount))
+	ok(t, db.db.QueryRowContext(ctx, "SELECT revision FROM recordings WHERE id=?", stream).Scan(&revision))
+	if auditCount != 1 || revision != 2 {
+		t.Fatalf("visibility applied %d times, revision=%d", auditCount, revision)
+	}
+	deadline := time.Now().UTC().Add(30 * time.Minute).Truncate(time.Microsecond)
+	_, err = db.PrepareVisibilityBatch(ctx, editor, "set-deadline", VisibilityBatchRequest{
+		Targets: []VisibilityTarget{{stale, 2}}, Until: &deadline,
+	})
+	ok(t, err)
+	timed, err := db.ExecuteVisibilityBatch(ctx, editor, "set-deadline")
+	ok(t, err)
+	visible, err := db.Recording(ctx, viewer, stale)
+	ok(t, err)
+	if timed.Items[0].State != "applied" || visible.Revision != 3 || visible.VisibleUntil == nil || !visible.VisibleUntil.Equal(deadline) {
+		t.Fatalf("deadline receipt disagreed with public record: %+v / %+v", timed, visible)
+	}
+	_, err = db.db.ExecContext(ctx, "UPDATE recordings SET visible_until=UTC_TIMESTAMP(6) WHERE id=?", stale)
+	ok(t, err)
+	ok(t, db.ExpirePublications(ctx))
+	if _, err := db.Recording(ctx, viewer, stale); !errors.Is(err, ErrMissing) {
+		t.Fatalf("expired recording was returned to the viewer: %v", err)
+	}
+	expired, err := db.Recording(ctx, editor, stale)
+	ok(t, err)
+	if expired.State != "hidden" || expired.Revision != 4 {
+		t.Fatalf("expiry did not persist the lifecycle transition: %+v", expired)
+	}
+	t.Log("reopened a partial recording batch and resumed concurrently with one visibility change, one stale and one missing rejection")
 }

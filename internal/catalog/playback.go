@@ -177,23 +177,31 @@ func (s *Store) SetVisibility(ctx context.Context, caller Identity, id string, r
 		return Recording{}, ErrInvalid
 	}
 	return transaction(ctx, s, func(tx *sql.Tx) (Recording, error) {
-		rec, err := readRecording(ctx, tx, id, caller, false, true)
-		if err != nil {
-			return Recording{}, err
-		}
-		if rec.Revision != revision || rec.State != "published" {
-			return Recording{}, ErrConflict
-		}
-		if _, err := tx.ExecContext(ctx, `UPDATE recordings SET
-			state=IF(?,'hidden','published'),hidden_at=IF(?,UTC_TIMESTAMP(6),NULL),visible_until=?,revision=revision+1 WHERE id=?`,
-			hide, hide, until, id); err != nil {
-			return Recording{}, err
-		}
-		if err := audit(ctx, tx, rec.Session, "recording_visibility", caller.Label, map[string]any{"hidden": hide, "visible_until": until}); err != nil {
-			return Recording{}, err
-		}
-		return readRecording(ctx, tx, id, caller, false, false)
+		return setVisibility(ctx, tx, caller, id, revision, until, hide, "")
 	})
+}
+
+func setVisibility(ctx context.Context, tx *sql.Tx, caller Identity, id string, revision uint64, until *time.Time, hide bool, batch string) (Recording, error) {
+	rec, err := readRecording(ctx, tx, id, caller, false, true)
+	if err != nil {
+		return Recording{}, err
+	}
+	if rec.Revision != revision || rec.State != "published" {
+		return Recording{}, ErrConflict
+	}
+	if _, err := tx.ExecContext(ctx, `UPDATE recordings SET
+		state=IF(?,'hidden','published'),hidden_at=IF(?,UTC_TIMESTAMP(6),NULL),visible_until=?,revision=revision+1 WHERE id=?`,
+		hide, hide, until, id); err != nil {
+		return Recording{}, err
+	}
+	details := map[string]any{"recording_id": id, "revision": revision + 1, "hidden": hide, "visible_until": until}
+	if batch != "" {
+		details["batch_key"] = batch
+	}
+	if err := audit(ctx, tx, rec.Session, "recording_visibility", caller.Label, details); err != nil {
+		return Recording{}, err
+	}
+	return readRecording(ctx, tx, id, caller, false, false)
 }
 
 type Event struct {

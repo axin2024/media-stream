@@ -1,0 +1,902 @@
+[
+  {
+    "sequence": 0,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 0,
+    "offset_ms": 0,
+    "media_ms": 0,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:28:59.676917Z",
+    "blob": {
+      "bytes": 548772
+    }
+  },
+  {
+    "sequence": 0,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 0,
+    "offset_ms": 0,
+    "media_ms": 0,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:28:59.677566Z",
+    "blob": {
+      "bytes": 864800
+    }
+  },
+  {
+    "sequence": 1,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 4000,
+    "offset_ms": 4000,
+    "media_ms": 4000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:03.713361Z",
+    "blob": {
+      "bytes": 549336
+    }
+  },
+  {
+    "sequence": 1,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 4000,
+    "offset_ms": 4000,
+    "media_ms": 4000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:03.713998Z",
+    "blob": {
+      "bytes": 865176
+    }
+  },
+  {
+    "sequence": 2,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 8000,
+    "offset_ms": 8000,
+    "media_ms": 8000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:07.664406Z",
+    "blob": {
+      "bytes": 548960
+    }
+  },
+  {
+    "sequence": 2,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 8000,
+    "offset_ms": 8000,
+    "media_ms": 8000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:07.664868Z",
+    "blob": {
+      "bytes": 844872
+    }
+  },
+  {
+    "sequence": 3,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 12000,
+    "offset_ms": 12000,
+    "media_ms": 12000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:11.667893Z",
+    "blob": {
+      "bytes": 549900
+    }
+  },
+  {
+    "sequence": 3,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 12000,
+    "offset_ms": 12000,
+    "media_ms": 12000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:11.668491Z",
+    "blob": {
+      "bytes": 853708
+    }
+  },
+  {
+    "sequence": 4,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 16000,
+    "offset_ms": 16000,
+    "media_ms": 16000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:15.675294Z",
+    "blob": {
+      "bytes": 549712
+    }
+  },
+  {
+    "sequence": 4,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 16000,
+    "offset_ms": 16000,
+    "media_ms": 16000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:15.676305Z",
+    "blob": {
+      "bytes": 864612
+    }
+  },
+  {
+    "sequence": 5,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 20000,
+    "offset_ms": 20000,
+    "media_ms": 20000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:19.725987Z",
+    "blob": {
+      "bytes": 548208
+    }
+  },
+  {
+    "sequence": 5,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 20000,
+    "offset_ms": 20000,
+    "media_ms": 20000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:19.726446Z",
+    "blob": {
+      "bytes": 848820
+    }
+  },
+  {
+    "sequence": 6,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 24000,
+    "offset_ms": 24000,
+    "media_ms": 24000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:23.68272Z",
+    "blob": {
+      "bytes": 552156
+    }
+  },
+  {
+    "sequence": 6,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 24000,
+    "offset_ms": 24000,
+    "media_ms": 24000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:23.683591Z",
+    "blob": {
+      "bytes": 859536
+    }
+  },
+  {
+    "sequence": 7,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 28000,
+    "offset_ms": 28000,
+    "media_ms": 28000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:27.70904Z",
+    "blob": {
+      "bytes": 548396
+    }
+  },
+  {
+    "sequence": 7,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 28000,
+    "offset_ms": 28000,
+    "media_ms": 28000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:27.709775Z",
+    "blob": {
+      "bytes": 843932
+    }
+  },
+  {
+    "sequence": 8,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 32000,
+    "offset_ms": 32000,
+    "media_ms": 32000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:31.6871Z",
+    "blob": {
+      "bytes": 549900
+    }
+  },
+  {
+    "sequence": 8,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 32000,
+    "offset_ms": 32000,
+    "media_ms": 32000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:31.687859Z",
+    "blob": {
+      "bytes": 864236
+    }
+  },
+  {
+    "sequence": 9,
+    "track": "360p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 36000,
+    "offset_ms": 36000,
+    "media_ms": 36000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:35.678677Z",
+    "blob": {
+      "bytes": 549148
+    }
+  },
+  {
+    "sequence": 9,
+    "track": "720p",
+    "source": "primary",
+    "source_epoch": 1,
+    "source_ms": 36000,
+    "offset_ms": 36000,
+    "media_ms": 36000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:35.679382Z",
+    "blob": {
+      "bytes": 855212
+    }
+  },
+  {
+    "sequence": 10,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 40000,
+    "offset_ms": 40000,
+    "media_ms": 40000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:40.070373Z",
+    "blob": {
+      "bytes": 550840
+    }
+  },
+  {
+    "sequence": 10,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 40000,
+    "offset_ms": 40000,
+    "media_ms": 40000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:40.07106Z",
+    "blob": {
+      "bytes": 845624
+    }
+  },
+  {
+    "sequence": 11,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 44000,
+    "offset_ms": 44000,
+    "media_ms": 44000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:43.713096Z",
+    "blob": {
+      "bytes": 549336
+    }
+  },
+  {
+    "sequence": 11,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 44000,
+    "offset_ms": 44000,
+    "media_ms": 44000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:43.713845Z",
+    "blob": {
+      "bytes": 852016
+    }
+  },
+  {
+    "sequence": 12,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 48000,
+    "offset_ms": 48000,
+    "media_ms": 48000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:47.852264Z",
+    "blob": {
+      "bytes": 550088
+    }
+  },
+  {
+    "sequence": 12,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 48000,
+    "offset_ms": 48000,
+    "media_ms": 48000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:47.852918Z",
+    "blob": {
+      "bytes": 858220
+    }
+  },
+  {
+    "sequence": 13,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 52000,
+    "offset_ms": 52000,
+    "media_ms": 52000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:51.741592Z",
+    "blob": {
+      "bytes": 548960
+    }
+  },
+  {
+    "sequence": 13,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 52000,
+    "offset_ms": 52000,
+    "media_ms": 52000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:51.742424Z",
+    "blob": {
+      "bytes": 850324
+    }
+  },
+  {
+    "sequence": 14,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 56000,
+    "offset_ms": 56000,
+    "media_ms": 56000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:55.71555Z",
+    "blob": {
+      "bytes": 549336
+    }
+  },
+  {
+    "sequence": 14,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 56000,
+    "offset_ms": 56000,
+    "media_ms": 56000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:55.716296Z",
+    "blob": {
+      "bytes": 859160
+    }
+  },
+  {
+    "sequence": 15,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 60000,
+    "offset_ms": 60000,
+    "media_ms": 60000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:59.650261Z",
+    "blob": {
+      "bytes": 550652
+    }
+  },
+  {
+    "sequence": 15,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 60000,
+    "offset_ms": 60000,
+    "media_ms": 60000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:29:59.650982Z",
+    "blob": {
+      "bytes": 856716
+    }
+  },
+  {
+    "sequence": 16,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 64000,
+    "offset_ms": 64000,
+    "media_ms": 64000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:03.816143Z",
+    "blob": {
+      "bytes": 548960
+    }
+  },
+  {
+    "sequence": 16,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 64000,
+    "offset_ms": 64000,
+    "media_ms": 64000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:03.817022Z",
+    "blob": {
+      "bytes": 861792
+    }
+  },
+  {
+    "sequence": 17,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 68000,
+    "offset_ms": 68000,
+    "media_ms": 68000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:07.804495Z",
+    "blob": {
+      "bytes": 548208
+    }
+  },
+  {
+    "sequence": 17,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 68000,
+    "offset_ms": 68000,
+    "media_ms": 68000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:07.805251Z",
+    "blob": {
+      "bytes": 848444
+    }
+  },
+  {
+    "sequence": 18,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 72000,
+    "offset_ms": 72000,
+    "media_ms": 72000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:11.66083Z",
+    "blob": {
+      "bytes": 550652
+    }
+  },
+  {
+    "sequence": 18,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 72000,
+    "offset_ms": 72000,
+    "media_ms": 72000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:11.661532Z",
+    "blob": {
+      "bytes": 854272
+    }
+  },
+  {
+    "sequence": 19,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 76000,
+    "offset_ms": 76000,
+    "media_ms": 76000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:15.67549Z",
+    "blob": {
+      "bytes": 549336
+    }
+  },
+  {
+    "sequence": 19,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 76000,
+    "offset_ms": 76000,
+    "media_ms": 76000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:15.676409Z",
+    "blob": {
+      "bytes": 856528
+    }
+  },
+  {
+    "sequence": 20,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 80000,
+    "offset_ms": 80000,
+    "media_ms": 80000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:19.734717Z",
+    "blob": {
+      "bytes": 548584
+    }
+  },
+  {
+    "sequence": 20,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 80000,
+    "offset_ms": 80000,
+    "media_ms": 80000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:19.735265Z",
+    "blob": {
+      "bytes": 849384
+    }
+  },
+  {
+    "sequence": 21,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 84000,
+    "offset_ms": 84000,
+    "media_ms": 84000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:23.805949Z",
+    "blob": {
+      "bytes": 551028
+    }
+  },
+  {
+    "sequence": 21,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 84000,
+    "offset_ms": 84000,
+    "media_ms": 84000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:23.806554Z",
+    "blob": {
+      "bytes": 855024
+    }
+  },
+  {
+    "sequence": 22,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 88000,
+    "offset_ms": 88000,
+    "media_ms": 88000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:27.692942Z",
+    "blob": {
+      "bytes": 549148
+    }
+  },
+  {
+    "sequence": 22,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 88000,
+    "offset_ms": 88000,
+    "media_ms": 88000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:27.693808Z",
+    "blob": {
+      "bytes": 840736
+    }
+  },
+  {
+    "sequence": 23,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 92000,
+    "offset_ms": 92000,
+    "media_ms": 92000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:31.707739Z",
+    "blob": {
+      "bytes": 550088
+    }
+  },
+  {
+    "sequence": 23,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 92000,
+    "offset_ms": 92000,
+    "media_ms": 92000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:31.708652Z",
+    "blob": {
+      "bytes": 862356
+    }
+  },
+  {
+    "sequence": 24,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 96000,
+    "offset_ms": 96000,
+    "media_ms": 96000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:35.683844Z",
+    "blob": {
+      "bytes": 549524
+    }
+  },
+  {
+    "sequence": 24,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 96000,
+    "offset_ms": 96000,
+    "media_ms": 96000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:35.684347Z",
+    "blob": {
+      "bytes": 853332
+    }
+  },
+  {
+    "sequence": 25,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 100000,
+    "offset_ms": 100000,
+    "media_ms": 100000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:39.675602Z",
+    "blob": {
+      "bytes": 549900
+    }
+  },
+  {
+    "sequence": 25,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 100000,
+    "offset_ms": 100000,
+    "media_ms": 100000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:39.676255Z",
+    "blob": {
+      "bytes": 855776
+    }
+  },
+  {
+    "sequence": 26,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 104000,
+    "offset_ms": 104000,
+    "media_ms": 104000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:43.715794Z",
+    "blob": {
+      "bytes": 548584
+    }
+  },
+  {
+    "sequence": 26,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 104000,
+    "offset_ms": 104000,
+    "media_ms": 104000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:43.71663Z",
+    "blob": {
+      "bytes": 862920
+    }
+  },
+  {
+    "sequence": 27,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 108000,
+    "offset_ms": 108000,
+    "media_ms": 108000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:47.6787Z",
+    "blob": {
+      "bytes": 550652
+    }
+  },
+  {
+    "sequence": 27,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 108000,
+    "offset_ms": 108000,
+    "media_ms": 108000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:47.679774Z",
+    "blob": {
+      "bytes": 855776
+    }
+  },
+  {
+    "sequence": 28,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 112000,
+    "offset_ms": 112000,
+    "media_ms": 112000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:51.691268Z",
+    "blob": {
+      "bytes": 550088
+    }
+  },
+  {
+    "sequence": 28,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 112000,
+    "offset_ms": 112000,
+    "media_ms": 112000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:51.692157Z",
+    "blob": {
+      "bytes": 856904
+    }
+  },
+  {
+    "sequence": 29,
+    "track": "360p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 116000,
+    "offset_ms": 116000,
+    "media_ms": 116000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:55.087191Z",
+    "blob": {
+      "bytes": 549524
+    }
+  },
+  {
+    "sequence": 29,
+    "track": "720p",
+    "source": "backup",
+    "source_epoch": 2,
+    "source_ms": 116000,
+    "offset_ms": 116000,
+    "media_ms": 116000,
+    "duration_ms": 4000,
+    "gap_ms": 0,
+    "published_at": "2026-11-26T04:30:55.087785Z",
+    "blob": {
+      "bytes": 855964
+    }
+  }
+]

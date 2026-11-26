@@ -30,7 +30,7 @@ try {
         $executable = Join-Path $package $filename
         go build -trimpath -buildvcs=false -ldflags "-s -w -buildid= -X main.version=$Version -X main.revision=$commit" -o $executable ./cmd/media-stream
         if ($LASTEXITCODE -ne 0) { throw "Could not build $target" }
-        foreach ($name in 'README.md', 'LICENSE', 'NOTICE', 'THIRD_PARTY.md', 'licenses', 'docs', 'examples') {
+        foreach ($name in 'README.md', 'CHANGELOG.md', 'LICENSE', 'NOTICE', 'THIRD_PARTY.md', 'licenses', 'docs', 'examples') {
             Copy-Item -LiteralPath (Join-Path $project $name) -Destination $package -Recurse -Force
         }
         @{

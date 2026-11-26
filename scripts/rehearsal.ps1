@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory)][int]$MySQLPort,
     [Parameter(Mandatory)][string]$MySQLVersion,
     [Parameter(Mandatory)][string]$EvidenceDirectory,
+    [string]$PreviousCLI,
     [string]$Node
 )
 
@@ -12,6 +13,7 @@ $ErrorActionPreference = 'Stop'
 $fixture = (Resolve-Path -LiteralPath $Fixture).Path
 $evidence = (New-Item -ItemType Directory -Path $EvidenceDirectory -Force).FullName
 $binary = Join-Path $fixture 'media-stream.exe'
+$liveBinary = if ($PreviousCLI) { $PreviousCLI } else { $binary }
 $store = Join-Path $fixture 'broadcast'
 $restoredStore = Join-Path $fixture 'restored'
 $playerEvidence = Join-Path $evidence 'browser.json'
@@ -85,17 +87,18 @@ function Read-Manifest([string]$Url, [string]$Token) {
 try {
     go build -trimpath -o $binary ./cmd/media-stream
     if ($LASTEXITCODE -ne 0) { throw 'Cannot build the rehearsal executable' }
-    & $binary migrate
+    $previousVersion = if ($PreviousCLI) { & $PreviousCLI version } else { $null }
+    & $liveBinary migrate
     if ($LASTEXITCODE -ne 0) { throw 'Cannot migrate the rehearsal database' }
-    & $binary node -name rehearsal -slots 2
+    & $liveBinary node -name rehearsal -slots 2
     if ($LASTEXITCODE -ne 0) { throw 'Cannot register the rehearsal worker' }
-    $owner = (& $binary grant -tenant rehearsal -name producer -role owner | ConvertFrom-Json).secret
-    $viewer = (& $binary grant -tenant rehearsal -name viewer -role viewer | ConvertFrom-Json).secret
-    $outsider = (& $binary grant -tenant outside -name viewer -role viewer | ConvertFrom-Json).secret
+    $owner = (& $liveBinary grant -tenant rehearsal -name producer -role owner | ConvertFrom-Json).secret
+    $viewer = (& $liveBinary grant -tenant rehearsal -name viewer -role viewer | ConvertFrom-Json).secret
+    $outsider = (& $liveBinary grant -tenant outside -name viewer -role viewer | ConvertFrom-Json).secret
     $port = Get-Port
     $origin = "http://127.0.0.1:$port"
-    $hostProcess = Start-RehearsalProcess 'origin' $binary @('serve','-listen',"127.0.0.1:$port",'-media',$store,'-ffmpeg',$FFmpeg,'-threads','1')
-    $worker = Start-RehearsalProcess 'worker' $binary @('worker','-node','rehearsal','-concurrency','2','-media',$store,'-ffmpeg',$FFmpeg,'-threads','2')
+    $hostProcess = Start-RehearsalProcess 'origin' $liveBinary @('serve','-listen',"127.0.0.1:$port",'-media',$store,'-ffmpeg',$FFmpeg,'-threads','1')
+    $worker = Start-RehearsalProcess 'worker' $liveBinary @('worker','-node','rehearsal','-concurrency','2','-media',$store,'-ffmpeg',$FFmpeg,'-threads','2')
     Wait-Ready $origin $hostProcess
     $now = [DateTimeOffset]::UtcNow
     Invoke-Media $origin $owner 'POST' '/api/channels' @{
@@ -120,8 +123,8 @@ try {
     }
     $pusherArgs = @('push','-origin',$origin,'-session',$session,'-segment-ms','4000','-ffmpeg',$FFmpeg,'-threads','1','-source')
     $starting = [DateTimeOffset]::UtcNow
-    $primary = Start-RehearsalProcess 'primary' $binary ($pusherArgs + @($primarySource,'-notify-lost')) @{ MEDIA_STREAM_PUSH_TOKEN=$opened.inputs.primary.secret }
-    $backup = Start-RehearsalProcess 'backup' $binary ($pusherArgs + @($source)) @{ MEDIA_STREAM_PUSH_TOKEN=$opened.inputs.backup.secret }
+    $primary = Start-RehearsalProcess 'primary' $liveBinary ($pusherArgs + @($primarySource,'-notify-lost')) @{ MEDIA_STREAM_PUSH_TOKEN=$opened.inputs.primary.secret }
+    $backup = Start-RehearsalProcess 'backup' $liveBinary ($pusherArgs + @($source)) @{ MEDIA_STREAM_PUSH_TOKEN=$opened.inputs.backup.secret }
     $switch = Wait-Until 'Backup input switch' 83 {
         if (($primary.HasExited -and $primary.ExitCode -ne 0) -or ($backup.HasExited -and $backup.ExitCode -ne 0)) {
             throw 'A source exited unsuccessfully; inspect isolated push logs'
@@ -184,6 +187,10 @@ try {
     }
     $outside = Invoke-WebRequest "$origin$clipPath/video.mp4" -Headers @{ Authorization = "Bearer $outsider" } -SkipHttpErrorCheck -TimeoutSec 10
     if ($outside.StatusCode -ne 404) { throw 'Cross-tenant clip read was visible' }
+    $invalid = Invoke-WebRequest "$origin/api/recordings/$session/edits" -Method Post -ContentType 'application/json' `
+        -Body (@{ recording_revision=$recording.revision; from_ms=40000; to_ms=20000; caption_id=$caption.id } | ConvertTo-Json -Compress) `
+        -Headers @{ Authorization = "Bearer $owner"; 'Idempotency-Key' = 'rehearsal-invalid-edit' } -SkipHttpErrorCheck -TimeoutSec 10
+    if ($invalid.StatusCode -ne 400) { throw 'Reversed clip bounds were accepted' }
     $player = $null
     if ($browser) {
         Wait-Until 'Headless player and two VOD seeks' 65 { $browser.HasExited } | Out-Null
@@ -196,6 +203,28 @@ try {
     $vodAsset = "/media/vod/$session/parts/360p/$($first.details.seq).ts"
     $backupSHA = Get-MediaFile $origin $viewer $vodAsset (Join-Path $fixture 'backup-original.ts')
     Stop-Isolated $worker
+    if ($PreviousCLI) {
+        Stop-Isolated $hostProcess
+        & $binary migrate
+        if ($LASTEXITCODE -ne 0) { throw 'Could not upgrade the previous release database' }
+        $hostProcess = Start-RehearsalProcess 'upgraded' $binary @('serve','-listen',"127.0.0.1:$port",'-media',$store,'-ffmpeg',$FFmpeg,'-threads','1','-schedule=false')
+        Wait-Ready $origin $hostProcess
+        $upgraded = Invoke-Media $origin $viewer 'GET' "/api/recordings/$session" $null
+        $upgradedClip = Get-MediaFile $origin $viewer "$clipPath/video.mp4" (Join-Path $fixture 'upgraded.mp4')
+        $upgradedCue = Get-MediaFile $origin $viewer "$clipPath/subtitles.vtt" (Join-Path $fixture 'upgraded.vtt')
+        $upgradedBackup = Get-MediaFile $origin $viewer $vodAsset (Join-Path $fixture 'upgraded.ts')
+        if ($upgraded.id -ne $recording.id -or $upgraded.revision -ne $recording.revision -or
+            $upgradedClip -ne $clipSHA -or $upgradedCue -ne $cueSHA -or $upgradedBackup -ne $backupSHA) {
+            throw 'Upgrade changed an existing recording, clip, subtitle, or source fragment'
+        }
+    }
+    $batchPath = '/api/visibility-batches/rehearsal-preserved-selection'
+    $batchInput = @{
+        hide=$false; visible_until=[DateTimeOffset]::UtcNow.AddHours(2).ToString('o')
+        items=@(@{recording_id=$recording.id;expected_revision=$recording.revision}, @{recording_id='ffffffffffffffffffffffff';expected_revision=1})
+    }
+    $pending = Invoke-Media $origin $owner 'PUT' $batchPath $batchInput
+    if ($pending.state -ne 'prepared' -or $pending.processed -ne 0) { throw 'The visibility selection was executed early' }
     Stop-Isolated $hostProcess
 
     $dump = Join-Path $fixture 'backup.sql'
@@ -217,6 +246,30 @@ try {
     $restoredCue = Get-MediaFile $restoredOrigin $viewer "$clipPath/subtitles.vtt" (Join-Path $fixture 'restored.vtt')
     $restoredBackup = Get-MediaFile $restoredOrigin $viewer $vodAsset (Join-Path $fixture 'backup-restored.ts')
     if ($restoredClip -ne $clipSHA -or $restoredCue -ne $cueSHA -or $restoredBackup -ne $backupSHA) { throw 'Restored media SHA-256 mismatch' }
+    $restoredBatch = Invoke-Media $restoredOrigin $owner 'GET' $batchPath $null
+    if ($restoredBatch.id -ne $pending.id -or $restoredBatch.state -ne 'prepared' -or $restoredBatch.items.Count -ne 2) {
+        throw 'Restoration lost the prepared visibility batch or its selection'
+    }
+    $applied = Invoke-Media $restoredOrigin $owner 'POST' "$batchPath/execute" $null
+    if ($applied.items[0].applied_revision -ne ($recording.revision + 1) -or $applied.items[1].reason -ne 'not_found') {
+        throw 'Unexpected restoration batch outcome'
+    }
+    $batchBrowser = $null
+    if ($Node) {
+        $batchEvidence = Join-Path $evidence 'visibility-browser.json'
+        $batchBrowserProcess = Start-RehearsalProcess 'visibility-browser' $Node @((Join-Path $PSScriptRoot 'browser-visibility.cjs')) @{
+            MEDIA_REHEARSAL_ORIGIN=$restoredOrigin; MEDIA_REHEARSAL_EDITOR=$owner; MEDIA_REHEARSAL_OUTPUT=$batchEvidence
+        }
+        Wait-Until 'Browser reconnect and visibility receipt' 35 { $batchBrowserProcess.HasExited } | Out-Null
+        if ($batchBrowserProcess.ExitCode -ne 0 -or !(Test-Path -LiteralPath $batchEvidence)) {
+            throw 'Browser visibility rehearsal failed; inspect isolated logs'
+        }
+        $batchBrowser = Get-Content -LiteralPath $batchEvidence -Raw | ConvertFrom-Json
+        $hidden = Invoke-WebRequest "$restoredOrigin/media/vod/$session/index.m3u8" -Headers @{ Authorization = "Bearer $viewer" } -SkipHttpErrorCheck -TimeoutSec 10
+        if ($hidden.StatusCode -ne 404) { throw 'Browser visibility operation did not remove the source from public playback' }
+        $stillDelivered = Get-MediaFile $restoredOrigin $viewer "$clipPath/video.mp4" (Join-Path $fixture 'after-hide.mp4')
+        if ($stillDelivered -ne $clipSHA) { throw 'Browser visibility operation affected the independently released clip' }
+    }
 
     $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1 Name, NumberOfCores, NumberOfLogicalProcessors
     $result = [ordered]@{
@@ -229,6 +282,9 @@ try {
         variants=@('360p','720p'); quality=$quality; browser_observed=[bool]$player; clip_id=$edit.id
         clip_actual_from_ms=$delivered.actual_from_ms; clip_actual_to_ms=$delivered.actual_to_ms
         clip_sha256=$clipSHA; vtt_sha256=$cueSHA; backup_fragment_sha256=$backupSHA; restore_verified=$true
+        upgraded_from=$previousVersion; upgrade_verified=[bool]$PreviousCLI; reverse_clip_status=$invalid.StatusCode
+        restored_batch=@{ request_key=$applied.request_key; processed=$applied.processed; items=$applied.items }
+        visibility_browser_verified=[bool]$batchBrowser
     }
     $result | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $evidence 'rehearsal.json') -Encoding utf8
     $vodManifest | Set-Content -LiteralPath (Join-Path $evidence 'vod.m3u8') -Encoding utf8

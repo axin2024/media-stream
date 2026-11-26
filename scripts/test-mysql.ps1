@@ -3,12 +3,14 @@ param(
     [string]$FFmpeg,
     [ValidateSet('Integration','Rehearsal')][string]$Scenario = 'Integration',
     [string]$Node,
+    [string]$PreviousCLI,
     [string]$EvidenceDirectory = '.local/rehearsal'
 )
 
 $ErrorActionPreference = 'Stop'
 $MySQLBin = (Resolve-Path -LiteralPath $MySQLBin).Path
 if ($FFmpeg) { $FFmpeg = (Resolve-Path -LiteralPath $FFmpeg).Path }
+if ($PreviousCLI) { $PreviousCLI = (Resolve-Path -LiteralPath $PreviousCLI).Path }
 $project = Split-Path $PSScriptRoot -Parent
 $fixtureRoot = (New-Item -ItemType Directory -Force -Path (Join-Path $project '.local')).FullName
 $name = 'test-' + [guid]::NewGuid().ToString('N')
@@ -80,7 +82,7 @@ GRANT ALL PRIVILEGES ON media_restore.* TO 'test_media'@'127.0.0.1';
     } else {
         if (!$FFmpeg) { throw 'Rehearsal needs -FFmpeg' }
         & (Join-Path $PSScriptRoot 'rehearsal.ps1') -Fixture $fixture -FFmpeg $FFmpeg -MySQLBin $MySQLBin -MySQLPort $port `
-            -Node $Node -EvidenceDirectory $EvidenceDirectory -MySQLVersion $version
+            -Node $Node -PreviousCLI $PreviousCLI -EvidenceDirectory $EvidenceDirectory -MySQLVersion $version
     }
 } finally {
     if ($locationChanged) { Pop-Location }

@@ -37,6 +37,7 @@
             <h3>回放</h3>
             <ul id="recordings"></ul>
             <button id="recordings-more" class="secondary" hidden>更多回放</button>
+            <a id="visibility-batch-link" href="#visibility-batches" hidden>查看所选回放</a>
           </div>
           <details id="channel-form-section" hidden>
             <summary>预约频道</summary>
@@ -115,6 +116,25 @@
           <button id="events-more" class="secondary" hidden>加载后续事件</button>
         </section>
       </div>
+      <section id="visibility-batches" class="panel operations" hidden aria-labelledby="visibility-batches-title">
+        <h2 id="visibility-batches-title">批量管理回放可见性</h2>
+        <form id="visibility-batch-form">
+          <label>操作 <select name="action"><option value="hide">下架回放</option><option value="deadline">设置到期时间</option></select></label>
+          <label id="visibility-batch-deadline" hidden>可见截止 <input name="until" type="datetime-local"></label>
+          <button id="visibility-batch-prepare">保存选集</button>
+          <button type="button" id="visibility-batch-clear" class="secondary">清空选集</button>
+        </form>
+        <p id="visibility-batch-count" aria-live="polite"></p>
+        <ul id="visibility-batch-selection"></ul>
+        <div class="buttons">
+          <label>已保存批次 <select id="visibility-batch-history"><option value="">选择批次</option></select></label>
+          <button id="visibility-batch-refresh" class="secondary">刷新批次</button>
+          <button id="visibility-batch-more" class="secondary" hidden>更早批次</button>
+          <button id="visibility-batch-execute" hidden>执行待处理项目</button>
+        </div>
+        <p id="visibility-batch-status" aria-live="polite"></p>
+        <ol id="visibility-batch-receipts"></ol>
+      </section>
       <section id="ops" class="panel operations" hidden>
         <h2>运维概况</h2>
         <div class="ops-grid"><div><h3>转码节点</h3><ul id="nodes"></ul></div><div><h3>租户小时流量</h3><ul id="usage"></ul></div></div>

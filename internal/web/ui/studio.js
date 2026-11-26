@@ -6,6 +6,7 @@ const state = {
   token: '', me: null, channel: null, recording: null, session: null, selection: 0, hls: null,
   channelCursor: '', recordingCursor: '', editCursor: '', eventCursor: 0, actions: new Map(),
   device: unique(), playback: null, refreshing: false,
+  batchTargets: new Map(), batchDraft: null, batch: null, batchCursor: '',
 };
 const labels = {
   waiting: '等待输入', live: '直播中', degraded: '转码降级', switching: '切换中', ending: '归档中',
@@ -68,6 +69,7 @@ function point(root, label, callback) {
   const row = document.createElement('li');
   row.append(button);
   root.append(row);
+  return row;
 }
 
 function rawText(node, value) {
@@ -117,11 +119,101 @@ async function refreshDirectory(reset = true, part = 'all') {
     if (reset) $('recordings').replaceChildren();
     for (const item of page.items) {
       const when = new Date(item.created_at).toLocaleDateString('zh-CN');
-      point($('recordings'), item.channel_title + ' · ' + when + ' · ' + labels[item.state], () => select(null, item));
+      const row = point($('recordings'), item.channel_title + ' · ' + when + ' · ' + labels[item.state], () => select(null, item));
+      if (role('owner', 'editor') && (item.state === 'published' || state.batchTargets.has(item.id))) {
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = state.batchTargets.has(item.id);
+        check.dataset.batchRecording = item.id;
+        check.setAttribute('aria-label', '选择回放 ' + item.channel_title + ' ' + item.id);
+        check.addEventListener('change', () => {
+          if (!check.checked) state.batchTargets.delete(item.id);
+          else if (state.batchTargets.size < 50) state.batchTargets.set(item.id, item);
+          else {
+            check.checked = false;
+            note('一个批次最多选择 50 个回放。', true);
+          }
+          renderVisibilitySelection();
+        });
+        row.prepend(check);
+      }
     }
     if (reset && !page.items.length) rawText($('recordings'), '当前没有回放');
     state.recordingCursor = page.next;
     $('recordings-more').hidden = !page.next;
+  }
+}
+
+function renderVisibilitySelection() {
+  const selection = $('visibility-batch-selection');
+  selection.replaceChildren();
+  for (const rec of state.batchTargets.values()) rawText(selection, rec.channel_title + ' · ' + rec.id + ' · 版本 ' + rec.revision);
+  $('visibility-batch-count').textContent = '已选 ' + state.batchTargets.size + ' 个回放';
+  $('visibility-batch-prepare').textContent = state.batchDraft ? '重试保存原选集' : '保存选集';
+}
+
+function visibilityBatchPath(key) {
+  return '/api/visibility-batches/' + encodeURIComponent(key);
+}
+
+function renderVisibilityBatch(batch) {
+  state.batch = batch;
+  $('visibility-batch-receipts').replaceChildren();
+  $('visibility-batch-execute').hidden = !batch || batch.state === 'completed';
+  $('visibility-batch-status').textContent = batch
+    ? '批次 ' + batch.request_key + ' · ' + (batch.hide ? '下架' : '设置到期时间') + ' · 已处理 ' + batch.processed + ' / ' + batch.item_count
+    : '';
+  if (!batch) return;
+  const reasons = {
+    not_found: '找不到可操作的回放',
+    revision_or_state_changed: '版本或状态已变化',
+    deadline_elapsed: '指定的截止时间已过',
+  };
+  for (const item of batch.items) {
+    let result = '未开始';
+    if (item.state === 'applied') result = '已完成，版本 ' + item.applied_revision;
+    if (item.state === 'rejected') result = '已拒绝，' + reasons[item.reason];
+    rawText($('visibility-batch-receipts'), item.recording_id + ' · 预期版本 ' + item.expected_revision + ' · ' + result);
+  }
+}
+
+async function refreshVisibilityBatches(reset = true) {
+  if (!role('owner', 'editor')) return;
+  const identity = state.me;
+  const path = '/api/visibility-batches?before=' + encodeURIComponent(reset ? '' : state.batchCursor);
+  const page = await api(path);
+  if (state.me !== identity) return;
+  const history = $('visibility-batch-history');
+  if (reset) history.replaceChildren(new Option('选择批次', ''));
+  const known = new Set([...history.options].map((option) => option.value));
+  for (const batch of page.items) {
+    if (!known.has(batch.request_key)) {
+      history.add(new Option((batch.hide ? '下架' : '到期') + ' · ' + batch.request_key + ' · ' +
+        batch.processed + '/' + batch.item_count, batch.request_key));
+    }
+  }
+  history.value = state.batch?.request_key || '';
+  if (history.selectedIndex < 0) history.selectedIndex = 0;
+  state.batchCursor = page.next;
+  $('visibility-batch-more').hidden = !page.next;
+}
+
+function clearVisibilitySelection() {
+  state.batchTargets.clear();
+  for (const check of $('recordings').querySelectorAll('[data-batch-recording]')) check.checked = false;
+  renderVisibilitySelection();
+}
+
+async function reloadVisibilityOutcome(path, mutationOptions) {
+  try {
+    return await api(path + (mutationOptions.method === 'POST' ? '/execute' : ''), mutationOptions);
+  } catch (error) {
+    if (error.status && error.status < 500) throw error;
+    try {
+      return await api(path);
+    } catch {
+      throw error;
+    }
   }
 }
 
@@ -297,12 +389,16 @@ runOn($('login'), 'submit', async () => {
   $('identity').hidden = false;
   $('identity-text').textContent = state.me.tenant + ' · ' + state.me.name;
   $('channel-form-section').hidden = !role('owner');
+  const canBatch = role('owner', 'editor');
+  $('visibility-batches').hidden = !canBatch;
+  $('visibility-batch-link').hidden = !canBatch;
   const from = new Date(Date.now() - 60_000);
   const to = new Date(Date.now() + 3_600_000);
   const local = (date) => new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
   $('channel-form').elements.from.value = local(from);
   $('channel-form').elements.until.value = local(to);
-  await Promise.all([refreshDirectory(), operations()]);
+  renderVisibilitySelection();
+  await Promise.all([refreshDirectory(), operations(), refreshVisibilityBatches()]);
   note('已连接。选择节目查看媒体和事件。');
 });
 
@@ -311,6 +407,11 @@ runOn($('sign-out'), 'click', async () => {
   state.token = '';
   state.me = null;
   state.actions.clear();
+  state.batchDraft = null;
+  state.batchCursor = '';
+  clearVisibilitySelection();
+  renderVisibilityBatch(null);
+  $('visibility-batch-history').replaceChildren(new Option('选择批次', ''));
   await select(null, null);
   $('identity').hidden = true;
   $('workspace').hidden = true;
@@ -326,6 +427,74 @@ runOn($('reload'), 'click', async () => {
 });
 runOn($('channels-more'), 'click', () => refreshDirectory(false, 'channels'));
 runOn($('recordings-more'), 'click', () => refreshDirectory(false, 'recordings'));
+runOn($('visibility-batch-form').elements.action, 'change', () => {
+  const deadline = $('visibility-batch-form').elements.action.value === 'deadline';
+  $('visibility-batch-deadline').hidden = !deadline;
+  $('visibility-batch-form').elements.until.required = deadline;
+});
+runOn($('visibility-batch-clear'), 'click', clearVisibilitySelection);
+runOn($('visibility-batch-refresh'), 'click', async () => {
+  const identity = state.me;
+  const key = state.batch?.request_key;
+  if (key) {
+    const latest = await api(visibilityBatchPath(key));
+    if (state.me !== identity) return;
+    if (state.batch?.request_key === key) renderVisibilityBatch(latest);
+  }
+  await refreshVisibilityBatches();
+});
+runOn($('visibility-batch-more'), 'click', () => refreshVisibilityBatches(false));
+runOn($('visibility-batch-history'), 'change', async () => {
+  const identity = state.me;
+  const key = $('visibility-batch-history').value;
+  const batch = key ? await api(visibilityBatchPath(key)) : null;
+  if (state.me === identity && $('visibility-batch-history').value === key) renderVisibilityBatch(batch);
+});
+runOn($('visibility-batch-form'), 'submit', async () => {
+  if (!state.batchDraft) {
+    if (!state.batchTargets.size) throw new Error('请在回放目录选择至少一个回放。');
+    const form = $('visibility-batch-form').elements;
+    const hide = form.action.value === 'hide';
+    const items = [...state.batchTargets.values()].map((rec) => ({recording_id: rec.id, expected_revision: rec.revision}));
+    const input = {items, hide};
+    if (!hide) input.visible_until = new Date(form.until.value).toISOString();
+    state.batchDraft = {key: unique(), input};
+  }
+  const identity = state.me;
+  const draft = state.batchDraft;
+  renderVisibilitySelection();
+  let batch;
+  try {
+    batch = await reloadVisibilityOutcome(visibilityBatchPath(draft.key), json('PUT', draft.input));
+  } catch (error) {
+    if (state.me === identity && error.status && error.status < 500) {
+      state.batchDraft = null;
+      renderVisibilitySelection();
+    }
+    throw error;
+  }
+  if (state.me !== identity) return;
+  state.batchDraft = null;
+  clearVisibilitySelection();
+  renderVisibilityBatch(batch);
+  await refreshVisibilityBatches();
+  note('选集已保存，可以检查版本后再执行。');
+});
+runOn($('visibility-batch-execute'), 'click', async () => {
+  if (!state.batch || state.batch.state === 'completed') return;
+  const identity = state.me;
+  const key = state.batch.request_key;
+  const batch = await reloadVisibilityOutcome(visibilityBatchPath(key), {method: 'POST'});
+  if (state.me !== identity || state.batch?.request_key !== key) return;
+  renderVisibilityBatch(batch);
+  if (batch.hide && batch.items.some((item) => item.state === 'applied' && item.recording_id === state.recording?.id)) {
+    resetPlayer();
+    state.recording = await api('/api/recordings/' + state.recording.id);
+    renderSelection();
+  }
+  await Promise.all([refreshVisibilityBatches(), refreshDirectory(true, 'recordings')]);
+  note(batch.state === 'completed' ? '批次已完成，请核对逐项回执。' : '已取回原回执，可继续处理剩余项目。');
+});
 runOn($('edits-more'), 'click', () => listEdits(false, state.selection));
 runOn($('events-more'), 'click', () => recentEvents(state.session.id, state.selection));
 

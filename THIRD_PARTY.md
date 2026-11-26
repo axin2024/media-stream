@@ -13,4 +13,9 @@
 
 FFmpeg 由部署者独立安装，程序以子进程调用，发行包不含其二进制。FFmpeg 编译选项影响最终许可证，以部署者使用的实际版本为准。 [FFmpeg 许可说明](https://ffmpeg.org/legal.html)
 
-演练的色块、时码、正弦音和示例字幕来自本项目的合成流程。源码仓库内仅含生成方式与原创字幕文本。
+演练的色块、时码、正弦音和示例字幕来自本项目的合成流程。项目的示例素材可按 Apache-2.0 分发。
+
+| 素材 | 来源 |
+| --- | --- |
+| `examples/studio-sample-180s.mp4` | `media-stream sample -out studio-sample-180s.mp4 -seconds 180 -width 320 -height 180` 生成的测试画面和 554 Hz 正弦音，H.264 与 AAC，SHA-256 为 `dc2a051a38ac294991aaf919c5d037f4f8f946fad5496a0d2c954e6def5013d6` |
+| `examples/rehearsal-en.vtt` | 项目编写的测试字幕，覆盖 20–40 秒剪辑的边界 |

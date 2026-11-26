@@ -1,5 +1,5 @@
 {
-  "session": "2d666bf0e32461c5c28d663b",
+  "session": "90c31911a629f48d62ae35d5",
   "mysql": "8.4.13",
   "ffmpeg": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
   "go": "go version go1.26.0 windows/amd64",
@@ -13,13 +13,13 @@
   "source_ms": 120000,
   "planned_cut_ms": 45000,
   "fragment_ms": 4000,
-  "input_start": "2026-11-25T10:01:47.3962668+00:00",
-  "primary_exit": "2026-11-25T10:02:32.3150838+00:00",
-  "loss_at": "2026-11-25T10:02:32.305555Z",
-  "selection_at": "2026-11-25T10:02:32.462276Z",
-  "first_backup_at": "2026-11-25T10:02:33.258823Z",
-  "live_seen_at": "2026-11-25T10:02:33.3735559+00:00",
-  "recovery_ms": 953.268,
+  "input_start": "2026-11-26T04:28:54.4178788+00:00",
+  "primary_exit": "2026-11-26T04:29:39.2809014+00:00",
+  "loss_at": "2026-11-26T04:29:39.275158Z",
+  "selection_at": "2026-11-26T04:29:39.295067Z",
+  "first_backup_at": "2026-11-26T04:29:40.071802Z",
+  "live_seen_at": "2026-11-26T04:29:40.1985288+00:00",
+  "recovery_ms": 796.644,
   "first_backup_sequence": 10,
   "first_backup_gap_ms": 0,
   "source_epoch": 2,
@@ -30,26 +30,48 @@
     "720p"
   ],
   "quality": {
-    "session_id": "2d666bf0e32461c5c28d663b",
+    "session_id": "90c31911a629f48d62ae35d5",
     "starts": 2,
-    "startup_ms": 745,
-    "stalls": 0,
-    "stalled_ms": 0,
+    "startup_ms": 597,
+    "stalls": 1,
+    "stalled_ms": 392,
     "player_errors": 0,
     "ingress_bytes": 7352680,
-    "egress_bytes": 31144483,
-    "media_requests": 85,
-    "egress_errors": 1,
+    "egress_bytes": 34236580,
+    "media_requests": 88,
+    "egress_errors": 0,
     "switches": 1,
     "waiting_jobs": 0,
     "failed_jobs": 0
   },
   "browser_observed": true,
-  "clip_id": "83a06613a1a70f9e17772a5e",
+  "clip_id": "04860618fa8e9dbe1be24e8a",
   "clip_actual_from_ms": 20000,
   "clip_actual_to_ms": 40000,
   "clip_sha256": "c4efdbc4f155d12d613f876e2ee1d3da9915d4d60fce86bd27694bd86b72466d",
   "vtt_sha256": "978104ed3de5ef5b4e330a4198acecab0860ab6735eae6e48d6c8145a4f80a96",
-  "backup_fragment_sha256": "d2a3e3ab35a1dec8832e63617dec49e6c28618ddc7f1d93335a7da1ae87aa48f",
-  "restore_verified": true
+  "backup_fragment_sha256": "44cfbbf1775d9261faf79e193546fb96719a79547f4235e968b2241df54f1781",
+  "restore_verified": true,
+  "upgraded_from": null,
+  "upgrade_verified": false,
+  "reverse_clip_status": 400,
+  "restored_batch": {
+    "processed": 2,
+    "request_key": "rehearsal-preserved-selection",
+    "items": [
+      {
+        "recording_id": "90c31911a629f48d62ae35d5",
+        "expected_revision": 1,
+        "state": "applied",
+        "applied_revision": 2
+      },
+      {
+        "recording_id": "ffffffffffffffffffffffff",
+        "expected_revision": 1,
+        "state": "rejected",
+        "reason": "not_found"
+      }
+    ]
+  },
+  "visibility_browser_verified": true
 }

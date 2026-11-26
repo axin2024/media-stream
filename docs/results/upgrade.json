@@ -1,0 +1,77 @@
+{
+  "session": "c8b72cccb18b4c4b09133f50",
+  "mysql": "8.4.13",
+  "ffmpeg": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "go": "go version go1.26.0 windows/amd64",
+  "cpu": {
+    "Name": "Intel(R) Core(TM) Ultra 7 155H",
+    "NumberOfCores": 16,
+    "NumberOfLogicalProcessors": 22
+  },
+  "width": 1280,
+  "height": 720,
+  "source_ms": 120000,
+  "planned_cut_ms": 45000,
+  "fragment_ms": 4000,
+  "input_start": "2026-11-26T04:25:56.4543136+00:00",
+  "primary_exit": "2026-11-26T04:26:41.3591367+00:00",
+  "loss_at": "2026-11-26T04:26:41.351814Z",
+  "selection_at": "2026-11-26T04:26:41.521572Z",
+  "first_backup_at": "2026-11-26T04:26:42.280038Z",
+  "live_seen_at": "2026-11-26T04:26:42.5298728+00:00",
+  "recovery_ms": 928.224,
+  "first_backup_sequence": 10,
+  "first_backup_gap_ms": 0,
+  "source_epoch": 2,
+  "sequences": 30,
+  "archived_duration_ms": 120000,
+  "variants": [
+    "360p",
+    "720p"
+  ],
+  "quality": {
+    "session_id": "c8b72cccb18b4c4b09133f50",
+    "starts": 2,
+    "startup_ms": 615,
+    "stalls": 1,
+    "stalled_ms": 448,
+    "player_errors": 0,
+    "ingress_bytes": 7352680,
+    "egress_bytes": 34244170,
+    "media_requests": 88,
+    "egress_errors": 0,
+    "switches": 1,
+    "waiting_jobs": 0,
+    "failed_jobs": 0
+  },
+  "browser_observed": true,
+  "clip_id": "757d4da1f44a6f12e1c5d04f",
+  "clip_actual_from_ms": 20000,
+  "clip_actual_to_ms": 40000,
+  "clip_sha256": "c4efdbc4f155d12d613f876e2ee1d3da9915d4d60fce86bd27694bd86b72466d",
+  "vtt_sha256": "978104ed3de5ef5b4e330a4198acecab0860ab6735eae6e48d6c8145a4f80a96",
+  "backup_fragment_sha256": "a498c115613dd5b7bda73c2c2c57e080b6e2f79f432380f63b2484ab9a0fc3e8",
+  "restore_verified": true,
+  "upgraded_from": "media-stream v1.0.0 (d7505f9d4ef8a2ee51280b15ba12797a06083a7a)",
+  "upgrade_verified": true,
+  "reverse_clip_status": 400,
+  "restored_batch": {
+    "items": [
+      {
+        "recording_id": "c8b72cccb18b4c4b09133f50",
+        "expected_revision": 1,
+        "state": "applied",
+        "applied_revision": 2
+      },
+      {
+        "recording_id": "ffffffffffffffffffffffff",
+        "expected_revision": 1,
+        "state": "rejected",
+        "reason": "not_found"
+      }
+    ],
+    "request_key": "rehearsal-preserved-selection",
+    "processed": 2
+  },
+  "visibility_browser_verified": true
+}

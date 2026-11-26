@@ -33,7 +33,7 @@ $viewer=(& ./.local/media-stream.exe grant -tenant studio -name guest -role view
 
 打开 `http://127.0.0.1:8080`，用频道主凭据连接，预约一个当前时间已落入开放期的频道。进入频道后打开会话，选择 `720p + 360p` 和 4 秒分片。保留会话 ID，以及工作台返回的两路短期凭据。
 
-生成带时码的样片。为主路准备前 45 秒，在播放中截断主路将得到相同效果。
+下方命令生成 120 秒 720p 样片并为主路准备前 45 秒，供两档切换和主备接管验收。安装包同时包含[三分钟影音样片](../examples/studio-sample-180s.mp4)，可直接用于播放和剪辑。
 
 ```powershell
 ./.local/media-stream.exe sample -out .local/source.mp4 -seconds 120

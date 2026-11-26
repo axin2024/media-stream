@@ -39,6 +39,7 @@ jobs:
           go vet ./...
           node --check internal/web/ui/studio.js
           node --check scripts/browser-rehearsal.cjs
+          node --check scripts/browser-visibility.cjs
           sudo apt-get update -q
           sudo apt-get install -y ffmpeg
       - name: Create isolated integration databases

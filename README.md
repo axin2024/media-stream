@@ -13,7 +13,7 @@ Media Stream 用 Go 管理直播会话、分片索引和处理队列，FFmpeg �
 | 回放 | 映射源时钟与媒体时钟、真实分片索引、封存回读、期限管理 |
 | 剪辑 | WebVTT 多语种轨、有效区间检查、逐帧取整、重定位字幕、MP4 下载 |
 | 质量 | 源切换、转码状态、出口流量、播放器起播和卡顿分别计量 |
-| 清理 | 回放下架、剪辑独立授权、待处理引用保护、多进程存储回收 |
+| 内容运营 | 单条或批量下架和到期、可恢复的逐项回执、剪辑独立授权、待处理引用保护、多进程存储回收 |
 
 ```mermaid
 flowchart LR
@@ -39,4 +39,4 @@ flowchart LR
 - [原始需求与 16 项验收场景](docs/requirements/04-验收与运营-prd.md)
 - [贡献指南](CONTRIBUTING.md) · [安全反馈](SECURITY.md) · [第三方依赖](THIRD_PARTY.md)
 
-源码使用 Apache License 2.0。安装者自行提供 FFmpeg，演示可由命令生成带时码的合成素材。
+源码使用 Apache License 2.0。安装者自行提供 FFmpeg。可以直接使用[三分钟合成影音样片](examples/studio-sample-180s.mp4)，或用命令生成适合两档直播测试的 720p 素材。

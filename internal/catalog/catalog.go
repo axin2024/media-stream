@@ -75,7 +75,7 @@ func (s *Store) Close() error { return s.db.Close() }
 
 func (s *Store) Ready(ctx context.Context) error {
 	var rows int
-	return s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM edits WHERE id=''").Scan(&rows)
+	return s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM visibility_batches WHERE id=0").Scan(&rows)
 }
 
 func Migrate(dsn string, steps int) error {
@@ -162,6 +162,7 @@ type Identity struct {
 	Session          string
 	Source           string
 	SourceGeneration uint64
+	credential       [32]byte
 }
 
 func (i Identity) Allows(tenant, channel, session string, roles ...string) bool {
@@ -181,7 +182,7 @@ func (s *Store) Identify(ctx context.Context, secret string) (Identity, error) {
 		return Identity{}, ErrDenied
 	}
 	sum := digestSecret(secret)
-	var result Identity
+	result := Identity{credential: sum}
 	err := s.db.QueryRowContext(ctx, `SELECT tenant,label,role,channel,session_id,source,source_generation
 		FROM credentials WHERE digest=? AND expires_at>UTC_TIMESTAMP(6) AND revoked_at IS NULL`, sum[:]).Scan(
 		&result.Tenant, &result.Label, &result.Role, &result.Channel, &result.Session, &result.Source, &result.SourceGeneration)
