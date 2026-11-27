@@ -75,7 +75,7 @@ func (s *Store) Close() error { return s.db.Close() }
 
 func (s *Store) Ready(ctx context.Context) error {
 	var rows int
-	return s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM visibility_batches WHERE id=0").Scan(&rows)
+	return s.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM productions WHERE id=''").Scan(&rows)
 }
 
 func Migrate(dsn string, steps int) error {

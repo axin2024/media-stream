@@ -1,0 +1,83 @@
+{
+  "session": "f98c8828e01a3bb5803b3962",
+  "mysql": "8.4.13",
+  "ffmpeg": "ffmpeg version 9.1-essentials_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers",
+  "go": "go version go1.26.0 windows/amd64",
+  "cpu": {
+    "Name": "Intel(R) Core(TM) Ultra 7 155H",
+    "NumberOfCores": 16,
+    "NumberOfLogicalProcessors": 22
+  },
+  "width": 1280,
+  "height": 720,
+  "source_ms": 120000,
+  "planned_cut_ms": 45000,
+  "fragment_ms": 4000,
+  "input_start": "2026-11-27T07:09:59.3385072+00:00",
+  "primary_exit": "2026-11-27T07:10:44.3410703+00:00",
+  "loss_at": "2026-11-27T07:10:44.332961Z",
+  "selection_at": "2026-11-27T07:10:44.351027Z",
+  "first_backup_at": "2026-11-27T07:10:45.137443Z",
+  "live_seen_at": "2026-11-27T07:10:45.1703816+00:00",
+  "recovery_ms": 804.482,
+  "first_backup_sequence": 10,
+  "first_backup_gap_ms": 0,
+  "source_epoch": 2,
+  "sequences": 30,
+  "archived_duration_ms": 120000,
+  "variants": [
+    "360p",
+    "720p"
+  ],
+  "quality": {
+    "session_id": "f98c8828e01a3bb5803b3962",
+    "starts": 0,
+    "startup_ms": 0,
+    "stalls": 0,
+    "stalled_ms": 0,
+    "player_errors": 0,
+    "ingress_bytes": 7858400,
+    "egress_bytes": 679041,
+    "media_requests": 3,
+    "egress_errors": 0,
+    "switches": 1,
+    "waiting_jobs": 0,
+    "failed_jobs": 0
+  },
+  "browser_observed": false,
+  "clip_id": "1e70cf0113fbd95940619228",
+  "clip_actual_from_ms": 20000,
+  "clip_actual_to_ms": 40000,
+  "clip_sha256": "231141b1bd9dad020bba5160b507001ae344b0afc1df7abb4fbaae4ee40a2acf",
+  "vtt_sha256": "978104ed3de5ef5b4e330a4198acecab0860ab6735eae6e48d6c8145a4f80a96",
+  "backup_fragment_sha256": "b6a89dd7473c9da15796f7256beb4abad7d63b208dd9466bf5e6a962d940f03f",
+  "restore_verified": true,
+  "upgraded_from": "media-stream v1.1.0 (dc0f3356e48b22bbaf9de9fa44c2f7b2d568ad42)",
+  "upgrade_verified": true,
+  "reverse_clip_status": 400,
+  "schema_before": 4,
+  "schema_after": 5,
+  "production_checkpoint_frame": 25,
+  "production_recovered_frame": 150,
+  "production_restored_sha256": "d507b52a905076c51021dc32c9fc697e8665f9662caf8cc0bc9e3eb30d45d226",
+  "production_restored_segments": 6,
+  "restored_batch": {
+    "processed": 2,
+    "request_key": "rehearsal-preserved-selection",
+    "items": [
+      {
+        "recording_id": "f98c8828e01a3bb5803b3962",
+        "expected_revision": 1,
+        "state": "applied",
+        "applied_revision": 2
+      },
+      {
+        "recording_id": "ffffffffffffffffffffffff",
+        "expected_revision": 1,
+        "state": "rejected",
+        "reason": "not_found"
+      }
+    ]
+  },
+  "visibility_browser_verified": false
+}

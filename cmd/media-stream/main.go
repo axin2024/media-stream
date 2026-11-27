@@ -14,10 +14,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"sync"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/axin2024/media-stream/internal/catalog"
 	"github.com/axin2024/media-stream/internal/media"
@@ -47,6 +49,7 @@ const usage = `media-stream <command> [flags]
   serve         Start the management API, HLS origin, and workbench
   scheduler     Run source selection and publication maintenance
   worker        Run a distributed FFmpeg worker
+  renderer      Render timed programmes into the HLS origin
   sweep         Reconcile aged orphan media and run maintenance once
   push          Partition an input with FFmpeg and send paced source fragments
   sample        Generate a synthetic timecoded audio/video sample
@@ -102,7 +105,7 @@ func run(ctx context.Context, log *slog.Logger, args []string, out io.Writer) er
 		return catalog.Migrate(dsn, *steps)
 	case "grant", "node":
 		return administer(ctx, flags, args, dsn, out)
-	case "serve", "scheduler", "worker", "sweep":
+	case "serve", "scheduler", "worker", "renderer", "sweep":
 		return runService(ctx, log, flags, args, dsn)
 	default:
 		return fmt.Errorf("unrecognized command %q; see media-stream help", args[0])
@@ -167,13 +170,17 @@ func administer(ctx context.Context, flags *flag.FlagSet, args []string, dsn str
 func runService(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args []string, dsn string) error {
 	command := args[0]
 	root := flags.String("media", ".local/media", "shared durable media directory")
-	var listen, cert, privateKey, binary, node, unavailable string
-	var schedule, proxied bool
+	var listen, cert, privateKey, binary, probe, font, node, unavailable string
+	var schedule, proxied, render bool
 	var threads, concurrency, inputSlots int
 	grace := 24 * time.Hour
-	if command == "serve" || command == "worker" {
+	if command == "serve" || command == "worker" || command == "renderer" {
 		flags.StringVar(&binary, "ffmpeg", "ffmpeg", "FFmpeg executable with libx264 and AAC")
 		flags.IntVar(&threads, "threads", 2, "maximum FFmpeg threads per codec")
+	}
+	if command == "serve" || command == "renderer" {
+		flags.StringVar(&probe, "ffprobe", "", "FFprobe executable, defaults to the sibling of FFmpeg")
+		flags.StringVar(&font, "overlay-font", os.Getenv("MEDIA_STREAM_OVERLAY_FONT"), "approved OpenType or TrueType font file")
 	}
 	if command == "serve" {
 		flags.StringVar(&listen, "listen", "127.0.0.1:8080", "management and HLS address")
@@ -181,6 +188,7 @@ func runService(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args
 		flags.StringVar(&privateKey, "tls-key", "", "PEM private key path")
 		flags.BoolVar(&proxied, "secure-proxy", false, "use secure cookies with a trusted TLS proxy on loopback")
 		flags.BoolVar(&schedule, "schedule", true, "run scheduler and cleanup with the origin")
+		flags.BoolVar(&render, "render-productions", true, "render timed programmes with the origin")
 		flags.IntVar(&inputSlots, "input-slots", 4, "maximum concurrent source verifiers")
 	}
 	if command == "worker" {
@@ -218,8 +226,13 @@ func runService(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args
 		return err
 	}
 	defer files.Close()
-	engine := media.FFmpeg{Path: binary, Threads: threads}
+	if probe == "" && filepath.Dir(binary) != "." {
+		probe = filepath.Join(filepath.Dir(binary), "ffprobe"+filepath.Ext(binary))
+	}
+	engine := media.FFmpeg{Path: binary, ProbePath: probe, Threads: threads}
+	graphics := media.Graphics{FontPath: font}
 	scheduler := pipeline.Scheduler{Catalog: db, Files: files, Log: log, Grace: grace}
+	renderer := pipeline.ProductionRenderer{Catalog: db, Files: files, FFmpeg: engine, Graphics: graphics, Log: log}
 	switch command {
 	case "serve":
 		if err := engine.Check(ctx); err != nil {
@@ -228,7 +241,7 @@ func runService(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args
 		if inputSlots < 1 || inputSlots > 64 {
 			return errors.New("input verifier slots must be 1 to 64")
 		}
-		server := &web.Server{DB: db, Files: files, FFmpeg: engine, Log: log, SecureCookie: proxied,
+		server := &web.Server{DB: db, Files: files, FFmpeg: engine, Graphics: graphics, Log: log, SecureCookie: proxied,
 			IngestSlots: make(chan struct{}, inputSlots)}
 		groupCtx, cancel := context.WithCancel(ctx)
 		defer cancel()
@@ -236,12 +249,20 @@ func runService(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args
 		if schedule {
 			group.Go(func() { _ = scheduler.Run(groupCtx) })
 		}
+		if render {
+			group.Go(func() { _ = renderer.Run(groupCtx) })
+		}
 		err := runHTTP(groupCtx, log, server.Handler(), listen, cert, privateKey)
 		cancel()
 		group.Wait()
 		return err
 	case "scheduler":
 		return scheduler.Run(ctx)
+	case "renderer":
+		if err := engine.Check(ctx); err != nil {
+			return err
+		}
+		return renderer.Run(ctx)
 	case "worker":
 		excluded := make(map[string]bool)
 		if unavailable != "" {

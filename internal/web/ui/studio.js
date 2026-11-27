@@ -37,7 +37,7 @@ async function api(path, options = {}) {
   const response = await fetch(path, {...options, headers, cache: 'no-store'});
   if (response.status === 204) return;
   const value = await response.json();
-  if (!response.ok) throw Object.assign(new Error(value.message || '请求失败'), {status: response.status});
+  if (!response.ok) throw Object.assign(new Error(value.message || '请求失败'), {status: response.status, value});
   return value;
 }
 
@@ -399,6 +399,7 @@ runOn($('login'), 'submit', async () => {
   $('channel-form').elements.until.value = local(to);
   renderVisibilitySelection();
   await Promise.all([refreshDirectory(), operations(), refreshVisibilityBatches()]);
+  document.dispatchEvent(new Event('studio:login'));
   note('已连接。选择节目查看媒体和事件。');
 });
 
@@ -406,6 +407,7 @@ runOn($('sign-out'), 'click', async () => {
   await api('/api/playback-cookie', {method: 'DELETE'});
   state.token = '';
   state.me = null;
+  document.dispatchEvent(new Event('studio:logout'));
   state.actions.clear();
   state.batchDraft = null;
   state.batchCursor = '';

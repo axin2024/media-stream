@@ -1,5 +1,7 @@
 # HTTP API 与播放协议
 
+制作节目、源校时、串联单、导播授权、图层和归档的 HTTP 路径见 [制作导播接口](production.md#接口)。
+
 API 使用 JSON，接入片段使用 MPEG-TS，字幕文件使用 WebVTT。所有 API 路径都接受 `Authorization: Bearer <token>`，媒体路径也接受同站 HttpOnly 播放 Cookie。普通 HTTP 仅用在回环地址。
 
 ## 频道与输入

@@ -38,6 +38,8 @@ jobs:
           test -z "$(gofmt -l cmd internal)"
           go vet ./...
           node --check internal/web/ui/studio.js
+          node --check internal/web/ui/production.js
+          node --check scripts/browser-production.cjs
           node --check scripts/browser-rehearsal.cjs
           node --check scripts/browser-visibility.cjs
           sudo apt-get update -q
@@ -50,10 +52,12 @@ jobs:
           CREATE DATABASE media_catalog CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
           CREATE DATABASE media_http CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
           CREATE DATABASE media_upgrade CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
+          CREATE DATABASE media_production CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
           CREATE USER 'test_media'@'%' IDENTIFIED BY 'local-ci-app-only';
           GRANT ALL PRIVILEGES ON media_catalog.* TO 'test_media'@'%';
           GRANT ALL PRIVILEGES ON media_http.* TO 'test_media'@'%';
           GRANT ALL PRIVILEGES ON media_upgrade.* TO 'test_media'@'%';
+          GRANT ALL PRIVILEGES ON media_production.* TO 'test_media'@'%';
           SQL
       - name: MySQL, MPEG-TS, replay and subtitle tests
         env:
@@ -62,6 +66,7 @@ jobs:
           export MEDIA_STREAM_TEST_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_catalog"
           export MEDIA_STREAM_TEST_HTTP_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_http"
           export MEDIA_STREAM_TEST_UPGRADE_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_upgrade"
+          export MEDIA_STREAM_TEST_PRODUCTION_DSN="test_media:local-ci-app-only@tcp(127.0.0.1:$MYSQL_TEST_PORT)/media_production"
           export MEDIA_STREAM_TEST_FFMPEG="$(command -v ffmpeg)"
           go test -race -count=1 -timeout 8m -v ./...
       - name: Build and read executable version

@@ -6,7 +6,9 @@
 | go-sql-driver/mysql 1.10.2 | MySQL 连接 | [MPL-2.0](licenses/go-sql-driver-mysql.txt) |
 | golang-migrate 4.20.1 | 版本化 SQL 迁移 | [MIT](licenses/golang-migrate.txt) |
 | edwards25519 1.2.0 | MySQL 驱动依赖 | [BSD 3-Clause](licenses/edwards25519.txt) |
-| golang.org/x/sys 0.49.0 | 迁移库依赖 | [BSD 3-Clause](licenses/golang-sys.txt) |
+| golang.org/x/sys 0.50.0 | 迁移库依赖 | [BSD 3-Clause](licenses/golang-sys.txt) |
+| golang.org/x/image 0.48.0 | 字形解析、图层渲染和测试字体 | [BSD 3-Clause](licenses/golang-image.txt) |
+| golang.org/x/text 0.44.0 | 字形解析库间接依赖 | [BSD 3-Clause](licenses/golang-text.txt) |
 | HLS.js 1.7.4 | 浏览器播放器，内置上游 npm 发布文件并移除源码映射引用 | [Apache-2.0](licenses/hls.js.txt) |
 
 内置播放器来自 [HLS.js 上游](https://github.com/video-dev/hls.js)。内置 `hls.min.js` 的 SHA-256 为 `a56a4f0328b16adf3a0a04fcec0968051bf95b327d0fd46b3f5d4f67637e5254`。

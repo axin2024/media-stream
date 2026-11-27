@@ -105,6 +105,8 @@ func (s *Store) Collectible(ctx context.Context, grace time.Duration) ([]string,
 				JOIN source_inputs t ON t.session_id=i.session_id AND t.source=i.source
 				WHERE i.blob_key=b.blob_key AND s.state<>'archived' AND s.next_offset_ms<=i.offset_ms AND i.generation=t.generation)
 			AND NOT EXISTS(SELECT 1 FROM transcode_jobs j WHERE j.input_blob=b.blob_key AND j.state IN ('queued','running'))
+			AND NOT EXISTS(SELECT 1 FROM production_inputs i JOIN productions p ON p.id=i.production_id
+				WHERE i.blob_key=b.blob_key AND p.state<>'sealed')
 			AND NOT EXISTS(SELECT 1 FROM edit_segments f JOIN edits e ON e.id=f.edit_id
 				WHERE f.blob_key=b.blob_key AND e.state IN ('queued','running'))
 			AND NOT EXISTS(SELECT 1 FROM captions c JOIN recordings r ON r.id=c.recording_id

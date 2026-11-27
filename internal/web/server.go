@@ -25,6 +25,7 @@ type Server struct {
 	DB           *catalog.Store
 	Files        *media.Files
 	FFmpeg       media.FFmpeg
+	Graphics     media.Graphics
 	Log          *slog.Logger
 	SecureCookie bool
 	IngestSlots  chan struct{}
@@ -79,8 +80,9 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/ops/nodes", s.handle(s.nodes))
 	mux.HandleFunc("GET /api/ops/usage", s.handle(s.usage))
 	mux.HandleFunc("GET /media/{kind}/{id}/{file...}", s.handle(s.play))
+	s.productionRoutes(mux)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; img-src 'self' data:; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; img-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		if strings.HasPrefix(r.URL.Path, "/api/") || strings.HasPrefix(r.URL.Path, "/media/") {
@@ -118,6 +120,16 @@ func (s *Server) handle(action authorized) http.HandlerFunc {
 
 func (s *Server) fail(w http.ResponseWriter, r *http.Request, err error) {
 	var limit *http.MaxBytesError
+	var invalid *catalog.ProductionInputError
+	var control *catalog.ControlConflict
+	if errors.As(err, &invalid) {
+		reply(w, 422, map[string]string{"code": "invalid_production_input", "field": invalid.Field, "message": invalid.Cause})
+		return
+	}
+	if errors.As(err, &control) {
+		reply(w, 409, map[string]any{"code": "control_changed", "message": control.Error(), "current": control})
+		return
+	}
 	status, code, message := 500, "internal", "request could not be completed"
 	switch {
 	case errors.As(err, &limit), errors.Is(err, media.ErrTooLarge):

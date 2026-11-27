@@ -70,3 +70,37 @@ MySQL 回执测试先保存三个回放，提交第一项后断开原调用。�
 在恢复库工作台选中回放后，浏览器故意丢弃准备请求已提交后的响应。重新登录能找回同一选集，执行响应被丢弃后再次查回原回执。实际发出一次准备和一次执行，回放版本从 2 变为 3。下架后原回放返回 404，独立授权剪辑摘要保持一致。 [批次浏览器记录](results/visibility-browser.json)
 
 上述时延来自同一台主机的一组双输入、一个播放器和一个转码节点。预切换窗口测量从开播至第 45 秒，稳定观察持续至 120 秒样片结束。请求和错误计数收录在原始记录中。
+
+## 2.0 多机位制作验收
+
+[多机位制作 PRD](requirements/05-多机位制作导播.md) 定义 A1–A14。2.0 的制作时基为 25 fps。所有帧范围包含起点，结束帧归入下一段。
+
+| 验收项 | 观察结果 |
+| --- | --- |
+| A1–A2 | Chrome 四路预监显示 CAM-A 的 −200 ms 校准。接口拒绝未校准输入、未校准切换和跳变时钟。 |
+| A3–A4 | 直播延长 750 帧移动后续非固定节目。广告仍从第 1000 帧开始，进一步延长会报告 50 帧冲突。 |
+| A5–A6 | 预监切到 CAM-B 时主输出继续播放片头。重复 TAKE 只有一次实际切点，在第 1200 帧，回执为 4,320,000 PTS。旧控制者请求被拒绝。 |
+| A7–A8 | 姓名条在约定的 125 帧内显示，单独的编码测试读取了图层实际像素。缺字形及溢出提交被拒绝。 |
+| A9–A10 | 相机实际失联 10.175 秒，播出单记录连续 250 帧垫片。信号恢复后继续输出，旧导播无法改写接任者的指令。 |
+| A11–A12 | 对关键分片核对文件摘要、节目 PTS 和播出单。删除一个实际分片后返回缺失区间及来源，播放清单返回 409。 |
+| A13 | 6 段共 750 帧的原创计数器片头结束后进入直播。分别解码片头、源画面、主源回归及切换段的标记。Chrome 播放第 825 至 1075 帧并下载回执。 |
+| A14 | 四路 720p 输入以实际时间运行 60 分钟，录制 90,000 帧。240 次切换均解码核对声画标记，绝对偏差 P95 为 61.375 ms，低于 120 ms 验收门槛。 |
+
+验收运行在 Windows，使用 MySQL 8.4.13、FFmpeg 9.1、Go 1.26.0、Chrome 158.0.8127.36 和隔离数据目录。真实 CLI 用带音轨的 MPEG-TS 为 CAM-C 推流，读回接入起始帧 750。[A1–A13 演练回执](results/production-rehearsal-v2.json)
+
+使用公开的 v1.1.0 可执行文件建立旧库后升级到数据库版本 5。新制作在第 25 帧中断，重启后连续输出至第 150 帧。由独立恢复库回读 6 个 720p 分片，逐个核对字节摘要。旧回放分片、MP4 和字幕摘要也与升级前一致。[2.0 升级与恢复回执](results/production-upgrade-v2.json)
+
+A14 使用一台 Intel Core Ultra 7 155H 主机（22 个逻辑处理器），在 Windows、MySQL 8.4.13 和 FFmpeg 9.1 上运行。预热用时 208 ms。四路各按 5 秒一片通过回环 HTTP 提交不同的合成视频和音轨，采样实耗 3,600.202 秒。2,880 次上传全部成功，拒绝、超时和垫片帧均为零。[60 分钟逐片验收回执](results/production-capacity-v2.json)
+
+### 复现
+
+```powershell
+$env:MEDIA_STREAM_TEST_PRODUCTION_DSN = 'test:password@tcp(127.0.0.1:3306)/isolated_production'
+$env:MEDIA_STREAM_TEST_FFMPEG = 'C:/tools/ffmpeg/bin/ffmpeg.exe'
+$env:MEDIA_STREAM_TEST_PRODUCTION_REPORT = "$PWD/.local/production.json"
+go test -count=1 -timeout 3m -v ./internal/web -run '^TestMySQLProductionRehearsal$'
+```
+
+使用隔离测试库。设置 `MEDIA_STREAM_TEST_PRODUCTION_CLI` 可加测本机编译的推流 CLI。浏览器验收需要将 `MEDIA_STREAM_TEST_PRODUCTION_BROWSER` 设为 `scripts/browser-production.cjs` 的绝对路径。按本机安装位置设置 `MEDIA_STREAM_TEST_PLAYWRIGHT` 和 `MEDIA_STREAM_TEST_CHROME`。测试会用合成输入生成录制和按区间导出所需的证据。
+
+设置 `MEDIA_STREAM_TEST_PRODUCTION_LOAD_REPORT` 为输出 JSON 的绝对路径，再运行 `go test -count=1 -timeout 75m -v ./internal/web -run '^TestMySQLProductionCapacity$'` 可复现完整长测。

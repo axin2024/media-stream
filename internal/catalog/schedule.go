@@ -21,7 +21,8 @@ type inputCandidate struct {
 }
 
 func (s *Store) PendingSessions(ctx context.Context, after string) ([]string, error) {
-	rows, err := s.db.QueryContext(ctx, "SELECT id FROM sessions WHERE id>? AND state<>'archived' ORDER BY id LIMIT 128", after)
+	rows, err := s.db.QueryContext(ctx, `SELECT s.id FROM sessions s WHERE s.id>? AND s.state<>'archived'
+		AND NOT EXISTS(SELECT 1 FROM productions p WHERE p.session_id=s.id) ORDER BY s.id LIMIT 128`, after)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +96,10 @@ func (s *Store) Schedule(ctx context.Context, id string) error {
 		var zero struct{}
 		stream, err := readSession(ctx, tx, id, true)
 		if err != nil || stream.State == "archived" {
+			return zero, err
+		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil || owned {
 			return zero, err
 		}
 		var now, until time.Time
@@ -195,6 +200,13 @@ func (s *Store) End(ctx context.Context, caller Identity, id string) (Session, e
 		}
 		if !caller.Allows(stream.Tenant, stream.Channel, id, "owner", "director") {
 			return Session{}, ErrMissing
+		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil {
+			return Session{}, err
+		}
+		if owned {
+			return Session{}, ErrConflict
 		}
 		if stream.State != "ending" && stream.State != "archived" {
 			if err := markEnding(ctx, tx, id, caller.Label); err != nil {

@@ -84,12 +84,20 @@ function Read-Manifest([string]$Url, [string]$Token) {
     return [string]$response.Content
 }
 
+$dbArgs = @('--no-defaults','--protocol=tcp','--host=127.0.0.1',"--port=$MySQLPort",'--user=test_media')
+function Get-SchemaVersion {
+    $value = & (Join-Path $MySQLBin 'mysql.exe') @dbArgs --database=media_stream --batch --skip-column-names '--execute=SELECT version FROM schema_migrations WHERE dirty=FALSE'
+    if ($LASTEXITCODE -ne 0 -or $value -notmatch '^\d+$') { throw 'Cannot read clean schema version' }
+    return [int]$value
+}
+
 try {
     go build -trimpath -o $binary ./cmd/media-stream
     if ($LASTEXITCODE -ne 0) { throw 'Cannot build the rehearsal executable' }
     $previousVersion = if ($PreviousCLI) { & $PreviousCLI version } else { $null }
     & $liveBinary migrate
     if ($LASTEXITCODE -ne 0) { throw 'Cannot migrate the rehearsal database' }
+    $schemaBefore = Get-SchemaVersion
     & $liveBinary node -name rehearsal -slots 2
     if ($LASTEXITCODE -ne 0) { throw 'Cannot register the rehearsal worker' }
     $owner = (& $liveBinary grant -tenant rehearsal -name producer -role owner | ConvertFrom-Json).secret
@@ -218,6 +226,10 @@ try {
             throw 'Upgrade changed an existing recording, clip, subtitle, or source fragment'
         }
     }
+    $schemaAfter = Get-SchemaVersion
+    if ($schemaAfter -ne 5 -or ($PreviousCLI -and $previousVersion -match 'v1\.1\.0' -and $schemaBefore -ne 4)) {
+        throw 'Unexpected migration path'
+    }
     $batchPath = '/api/visibility-batches/rehearsal-preserved-selection'
     $batchInput = @{
         hide=$false; visible_until=[DateTimeOffset]::UtcNow.AddHours(2).ToString('o')
@@ -225,10 +237,46 @@ try {
     }
     $pending = Invoke-Media $origin $owner 'PUT' $batchPath $batchInput
     if ($pending.state -ne 'prepared' -or $pending.processed -ne 0) { throw 'The visibility selection was executed early' }
+
+    $newChannel = Invoke-Media $origin $owner 'POST' '/api/channels' @{
+        key='production'; title='Production Restore'; available_from=[DateTimeOffset]::UtcNow.AddMinutes(-1).ToString('o')
+        available_until=[DateTimeOffset]::UtcNow.AddHours(1).ToString('o')
+    }
+    $newSession = Invoke-Media $origin $owner 'POST' "/api/channels/$($newChannel.key)/sessions" @{
+        preset='standard'; segment_ms=1000; primary_source_zero_ms=0; backup_source_zero_ms=0; push_ttl_seconds=900
+    } 'production-opening'
+    $newProduction = Invoke-Media $origin $owner 'POST' '/api/productions' @{
+        session_id=$newSession.session.id; title='Production Restore'; timezone='Asia/Shanghai'; fallback_slot='CONT'
+    } 'production-rehearsal'
+    $productionPath = "/api/productions/$($newProduction.id)"
+    Invoke-Media $origin $owner 'PUT' "$productionPath/slots/CONT" @{ title='Continuity'; kind='slate'; audio_channel='mute' } | Out-Null
+    Invoke-Media $origin $owner 'PUT' "$productionPath/rundown" @{ expected_revision=$newProduction.rundown_rev; items=@(@{
+        id='SLATE'; title='Continuity'; slot_id='CONT'; kind='slate'; in_frame=0; out_frame=150; source_in_frame=0; fixed=$false
+    }) } | Out-Null
+    $control = Invoke-Media $origin $owner 'POST' "$productionPath/control" @{ expected_control_epoch=0; lease_seconds=60 }
+    Invoke-Media $origin $owner 'POST' "$productionPath/start" @{ expected_control_epoch=$control.control_epoch } | Out-Null
+    $checkpoint = Wait-Until 'First committed programme interval' 14 {
+        $read = Invoke-Media $origin $owner 'GET' $productionPath $null
+        if ($read.program_frame -ge 25) { $read }
+    }
+    Stop-Isolated $hostProcess
+    $hostProcess = Start-RehearsalProcess 'restarted-production' $binary @('serve','-listen',"127.0.0.1:$port",'-media',$store,
+        '-ffmpeg',$FFmpeg,'-threads','1','-schedule=false')
+    Wait-Ready $origin $hostProcess
+    $sealedProduction = Wait-Until 'Programme recovery and sealing' 35 {
+        $read = Invoke-Media $origin $owner 'GET' $productionPath $null
+        if ($read.state -eq 'sealed') { $read }
+    }
+    if ($checkpoint.program_frame -lt 25 -or $checkpoint.program_frame -ge 150 -or $sealedProduction.program_frame -ne 150 -or
+        $sealedProduction.control_epoch -ne $control.control_epoch) { throw 'Production restart did not recover the confirmed checkpoint' }
+    $productionArchive = "$productionPath/archive?from_frame=0&to_frame=150&track=720p"
+    $productionOriginal = Invoke-Media $origin $owner 'GET' $productionArchive $null
+    if ($productionOriginal.state -ne 'complete' -or $productionOriginal.archive_digest -notmatch '^[0-9a-f]{64}$') {
+        throw 'Production archive is incomplete after restart'
+    }
     Stop-Isolated $hostProcess
 
     $dump = Join-Path $fixture 'backup.sql'
-    $dbArgs = @('--no-defaults','--protocol=tcp','--host=127.0.0.1',"--port=$MySQLPort",'--user=test_media')
     & (Join-Path $MySQLBin 'mysqldump.exe') @dbArgs --single-transaction --hex-blob --no-tablespaces "--result-file=$dump" media_stream
     if ($LASTEXITCODE -ne 0) { throw 'Rehearsal database backup failed' }
     & (Join-Path $MySQLBin 'mysql.exe') @dbArgs --database=media_restore "--execute=source $($dump.Replace('\','/'))"
@@ -246,6 +294,14 @@ try {
     $restoredCue = Get-MediaFile $restoredOrigin $viewer "$clipPath/subtitles.vtt" (Join-Path $fixture 'restored.vtt')
     $restoredBackup = Get-MediaFile $restoredOrigin $viewer $vodAsset (Join-Path $fixture 'backup-restored.ts')
     if ($restoredClip -ne $clipSHA -or $restoredCue -ne $cueSHA -or $restoredBackup -ne $backupSHA) { throw 'Restored media SHA-256 mismatch' }
+    $productionRestored = Invoke-Media $restoredOrigin $owner 'GET' $productionArchive $null
+    if ($productionRestored.archive_digest -ne $productionOriginal.archive_digest -or $productionRestored.segments.Count -ne $productionOriginal.segments.Count) {
+        throw 'Restored production archive changed its verified index'
+    }
+    foreach ($segment in $productionRestored.segments) {
+        $restoredSHA = Get-MediaFile $restoredOrigin $viewer $segment.url (Join-Path $fixture 'restored-production-part.ts')
+        if ($restoredSHA -ne $segment.sha256) { throw 'Restored programme segment has an unequal SHA-256' }
+    }
     $restoredBatch = Invoke-Media $restoredOrigin $owner 'GET' $batchPath $null
     if ($restoredBatch.id -ne $pending.id -or $restoredBatch.state -ne 'prepared' -or $restoredBatch.items.Count -ne 2) {
         throw 'Restoration lost the prepared visibility batch or its selection'
@@ -283,6 +339,9 @@ try {
         clip_actual_from_ms=$delivered.actual_from_ms; clip_actual_to_ms=$delivered.actual_to_ms
         clip_sha256=$clipSHA; vtt_sha256=$cueSHA; backup_fragment_sha256=$backupSHA; restore_verified=$true
         upgraded_from=$previousVersion; upgrade_verified=[bool]$PreviousCLI; reverse_clip_status=$invalid.StatusCode
+        schema_before=$schemaBefore; schema_after=$schemaAfter; production_checkpoint_frame=$checkpoint.program_frame
+        production_recovered_frame=$sealedProduction.program_frame; production_restored_sha256=$productionRestored.archive_digest
+        production_restored_segments=$productionRestored.segments.Count
         restored_batch=@{ request_key=$applied.request_key; processed=$applied.processed; items=$applied.items }
         visibility_browser_verified=[bool]$batchBrowser
     }

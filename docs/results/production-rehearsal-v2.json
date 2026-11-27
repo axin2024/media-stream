@@ -1,0 +1,1081 @@
+{
+  "archive": {
+    "production_id": "0448eb8e6f97f2f24a006e73",
+    "asrun_rev": 12,
+    "state": "complete",
+    "track": "720p",
+    "requested_from_frame": 825,
+    "requested_to_frame": 1075,
+    "actual_from_frame": 825,
+    "actual_to_frame": 1075,
+    "missing": [],
+    "segments": [
+      {
+        "sequence": 7,
+        "from_frame": 825,
+        "to_frame": 950,
+        "bytes": 87420,
+        "sha256": "87a04f6ec5c2c4dd87a372d951745b2d055a1907217670d0ca9b26d485137364",
+        "url": "/media/vod/11c11750995f3d6f8b9a0034/parts/720p/7.ts"
+      },
+      {
+        "sequence": 8,
+        "from_frame": 950,
+        "to_frame": 1075,
+        "bytes": 87232,
+        "sha256": "b2e19f45d5701405ad850b9fb020bc576f6bf6b3391d4fb3cdaf3091a08d7266",
+        "url": "/media/vod/11c11750995f3d6f8b9a0034/parts/720p/8.ts"
+      }
+    ],
+    "archive_digest": "00e8ee849ec76b5eec49948029ff3a0b5fb7bdc3d1f299444ddddf2f9358bb2e"
+  },
+  "as_run": [
+    {
+      "actual_in_frame": 0,
+      "actual_out_frame": 125,
+      "segment_sequence": 0,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 0,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 90000,
+          "video_last_pts": 536400,
+          "audio_first_pts": 90000,
+          "audio_last_pts": 539280,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "0a635dbbdddea23c154a3dccbcb91de32e7c319698bf7d4388cbe3f61d444d7b"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 90000,
+          "video_last_pts": 536400,
+          "audio_first_pts": 90000,
+          "audio_last_pts": 539280,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "248641c6724c55dd180d5ee80f4484c146aec6f9be0210efe28d215545ba310a"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:19.926025Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 125,
+      "actual_out_frame": 250,
+      "segment_sequence": 1,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 125,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": [
+          {
+            "overlay_id": "c0101bd561eb3f924555836c",
+            "template": "lower_third",
+            "text": "Studio guest",
+            "font_sha256": "197d9f3703b4c00af609178876a8d73e396f64fe438b2c871778566632374be3",
+            "font_size": 32,
+            "on_frame": 125,
+            "off_frame": 250,
+            "expected_off_frame": 250,
+            "actor": "graphics-operator"
+          }
+        ]
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 540000,
+          "video_last_pts": 986400,
+          "audio_first_pts": 541200,
+          "audio_last_pts": 988560,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "c27660bc56eaa888719bcd806f6614f7ebd461f1e0ce93cd12bf08d001a0e4a6"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 540000,
+          "video_last_pts": 986400,
+          "audio_first_pts": 541200,
+          "audio_last_pts": 988560,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "e5c7ec8d730f71b70821dae1a04f8fa48d801c02808fcd36293de6fbe6b8de8c"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:24.92837Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 250,
+      "actual_out_frame": 375,
+      "segment_sequence": 2,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 250,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 990000,
+          "video_last_pts": 1436400,
+          "audio_first_pts": 990480,
+          "audio_last_pts": 1439760,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "2bb387f07ab8f304730ed4564fa07b0b0e382dde8ea45646cbd253914d5107b2"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 990000,
+          "video_last_pts": 1436400,
+          "audio_first_pts": 990480,
+          "audio_last_pts": 1439760,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "c6d12ebf03169d37f79956d636723403989b37c2b044c4bd05a4edec1f039c84"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:29.995028Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 375,
+      "actual_out_frame": 500,
+      "segment_sequence": 3,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 375,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 1440000,
+          "video_last_pts": 1886400,
+          "audio_first_pts": 1441680,
+          "audio_last_pts": 1889040,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "b48f9ae6c158a68f82e04ef4935783cd3284b40edb4ddfbb14e1d507ad6ef1da"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 1440000,
+          "video_last_pts": 1886400,
+          "audio_first_pts": 1441680,
+          "audio_last_pts": 1889040,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "36a6071d45e91536d33c0287fa966dfd6a60b0afeecad1ccc6569aba1885990c"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:34.859782Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 500,
+      "actual_out_frame": 625,
+      "segment_sequence": 4,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 500,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 1890000,
+          "video_last_pts": 2336400,
+          "audio_first_pts": 1890960,
+          "audio_last_pts": 2338320,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "cee3a1c8d059dd32bd1cdad08a87dcbae6a3d051899da0f5d2afe46e08f56559"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 1890000,
+          "video_last_pts": 2336400,
+          "audio_first_pts": 1890960,
+          "audio_last_pts": 2338320,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "f4f8318b809bd198e9287aab353963df9f14e74a14bf9766c240415f44f90726"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:39.89471Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 625,
+      "actual_out_frame": 750,
+      "segment_sequence": 5,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "OPEN",
+        "planned_in_frame": 0,
+        "intended_slot": "INTRO",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "INTRO",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 625,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 2340000,
+          "video_last_pts": 2786400,
+          "audio_first_pts": 2340240,
+          "audio_last_pts": 2789520,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "649023993fa65d6fe1f436bf6fa7273ad374a6079374ed87681b6ad3f7e00aa8"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 2340000,
+          "video_last_pts": 2786400,
+          "audio_first_pts": 2340240,
+          "audio_last_pts": 2789520,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "2f2a591abad7468db30632afab7893db96de0e7d405f05ec80ce1747d213568c"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:44.791773Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 750,
+      "actual_out_frame": 825,
+      "segment_sequence": 6,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "LIVE",
+        "planned_in_frame": 750,
+        "intended_slot": "CAM-A",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "CAM-A",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 755,
+          "available_frames": 75,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 2790000,
+          "video_last_pts": 3056400,
+          "audio_first_pts": 2791440,
+          "audio_last_pts": 3058320,
+          "video_frames": 75,
+          "audio_packets": 140,
+          "audio_sample_rate": 48000,
+          "sha256": "5ab2867bdbdec9775d41106693f1da6d0eb9dc8ecb3adb3f0b34db5e7800d60d"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 2790000,
+          "video_last_pts": 3056400,
+          "audio_first_pts": 2791440,
+          "audio_last_pts": 3058320,
+          "video_frames": 75,
+          "audio_packets": 140,
+          "audio_sample_rate": 48000,
+          "sha256": "70deaa7bb1258a9f814be6734909b27b99aa009e77528ff685c62d035a77d972"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:49.794147Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 825,
+      "actual_out_frame": 950,
+      "segment_sequence": 7,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "LIVE",
+        "planned_in_frame": 750,
+        "intended_slot": "CAM-A",
+        "reason": "source_unavailable",
+        "source": {
+          "slot_id": "CONT",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 0,
+          "available_frames": 0,
+          "audio_channel": "mute",
+          "built_in_slate": true
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 3060000,
+          "video_last_pts": 3506400,
+          "audio_first_pts": 3060240,
+          "audio_last_pts": 3509520,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "69a092766e2738b40876c09b7b9153ecd56df17fd983cfe375cb90eed678e2e0"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 3060000,
+          "video_last_pts": 3506400,
+          "audio_first_pts": 3060240,
+          "audio_last_pts": 3509520,
+          "video_frames": 125,
+          "audio_packets": 235,
+          "audio_sample_rate": 48000,
+          "sha256": "87a04f6ec5c2c4dd87a372d951745b2d055a1907217670d0ca9b26d485137364"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:53.097687Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 950,
+      "actual_out_frame": 1075,
+      "segment_sequence": 8,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "LIVE",
+        "planned_in_frame": 750,
+        "intended_slot": "CAM-A",
+        "reason": "source_unavailable",
+        "source": {
+          "slot_id": "CONT",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 0,
+          "available_frames": 0,
+          "audio_channel": "mute",
+          "built_in_slate": true
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 3510000,
+          "video_last_pts": 3956400,
+          "audio_first_pts": 3511440,
+          "audio_last_pts": 3958800,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "ce3701f74a5a35f3aa6f436ef189db8523cb701347b2e1e4f1b513d51f9d6de8"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 3510000,
+          "video_last_pts": 3956400,
+          "audio_first_pts": 3511440,
+          "audio_last_pts": 3958800,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "b2e19f45d5701405ad850b9fb020bc576f6bf6b3391d4fb3cdaf3091a08d7266"
+        }
+      ],
+      "published_at": "2026-11-27T07:21:58.018062Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 1075,
+      "actual_out_frame": 1200,
+      "segment_sequence": 9,
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "LIVE",
+        "planned_in_frame": 750,
+        "intended_slot": "CAM-A",
+        "reason": "rundown",
+        "source": {
+          "slot_id": "CAM-A",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 1080,
+          "available_frames": 125,
+          "audio_channel": "stereo"
+        },
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 3960000,
+          "video_last_pts": 4406400,
+          "audio_first_pts": 3960720,
+          "audio_last_pts": 4408080,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "67707a3904b42394acd2aec659117116dfdbb04832314903ba376ce6bcf8f34d"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 3960000,
+          "video_last_pts": 4406400,
+          "audio_first_pts": 3960720,
+          "audio_last_pts": 4408080,
+          "video_frames": 125,
+          "audio_packets": 234,
+          "audio_sample_rate": 48000,
+          "sha256": "e841d9ba59ee07f66f0f8c22a317f736ea962d73059b9bdff71dd2765d18864c"
+        }
+      ],
+      "published_at": "2026-11-27T07:22:02.821016Z",
+      "render_attempts": 1
+    },
+    {
+      "actual_in_frame": 1200,
+      "actual_out_frame": 1300,
+      "segment_sequence": 10,
+      "take_id": "5fcee353aaf1b3bbf3ace892",
+      "plan": {
+        "rundown_rev": 4,
+        "item_id": "LIVE",
+        "planned_in_frame": 750,
+        "intended_slot": "CAM-B",
+        "reason": "director",
+        "source": {
+          "slot_id": "CAM-B",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 1200,
+          "available_frames": 100,
+          "audio_channel": "stereo"
+        },
+        "transition_from": {
+          "slot_id": "CAM-A",
+          "blob": {
+            "bytes": 0
+          },
+          "input_offset_frames": 0,
+          "source_frame": 1205,
+          "available_frames": 100,
+          "audio_channel": "stereo"
+        },
+        "dissolve_frames": 10,
+        "overlays": []
+      },
+      "tracks": [
+        {
+          "track": "360p",
+          "video_first_pts": 4410000,
+          "video_last_pts": 4766400,
+          "audio_first_pts": 4410000,
+          "audio_last_pts": 4769040,
+          "video_frames": 100,
+          "audio_packets": 188,
+          "audio_sample_rate": 48000,
+          "sha256": "5385491cb5a8dcd1fcda532940e89495486a3107d1b29473f057ccdc3f43d0f8"
+        },
+        {
+          "track": "720p",
+          "video_first_pts": 4410000,
+          "video_last_pts": 4766400,
+          "audio_first_pts": 4410000,
+          "audio_last_pts": 4769040,
+          "video_frames": 100,
+          "audio_packets": 188,
+          "audio_sample_rate": 48000,
+          "sha256": "faf67a1d01e3eb8589f192016e66f0cad1ddc618df89b92e961babbc0c7f81fe"
+        }
+      ],
+      "published_at": "2026-11-27T07:22:06.845798Z",
+      "render_attempts": 1
+    }
+  ],
+  "browser": {
+    "alignment_ms": -200,
+    "archive_digest": "00e8ee849ec76b5eec49948029ff3a0b5fb7bdc3d1f299444ddddf2f9358bb2e",
+    "archive_playable": true,
+    "browser": "158.0.8127.36",
+    "download": true,
+    "monitors": 4,
+    "page_errors": 0,
+    "programme_playable": true,
+    "verified_slate_intervals": [
+      [
+        825,
+        950
+      ],
+      [
+        950,
+        1075
+      ]
+    ],
+    "viewport_width": 390
+  },
+  "camera_a_first": {
+    "source_frame": 755,
+    "start_frame": 750,
+    "frame_count": 75,
+    "replay": false
+  },
+  "camera_a_recovered": {
+    "source_frame": 1080,
+    "start_frame": 1075,
+    "frame_count": 125,
+    "replay": false
+  },
+  "camera_c_cli": true,
+  "clock_alignment_ms": -200,
+  "decoded_output": [
+    {
+      "entry": {
+        "actual_in_frame": 0,
+        "actual_out_frame": 125,
+        "segment_sequence": 0,
+        "plan": {
+          "rundown_rev": 4,
+          "item_id": "OPEN",
+          "planned_in_frame": 0,
+          "intended_slot": "INTRO",
+          "reason": "rundown",
+          "source": {
+            "slot_id": "INTRO",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 0,
+            "available_frames": 125,
+            "audio_channel": "stereo"
+          },
+          "overlays": []
+        },
+        "tracks": [
+          {
+            "track": "360p",
+            "video_first_pts": 90000,
+            "video_last_pts": 536400,
+            "audio_first_pts": 90000,
+            "audio_last_pts": 539280,
+            "video_frames": 125,
+            "audio_packets": 235,
+            "audio_sample_rate": 48000,
+            "sha256": "0a635dbbdddea23c154a3dccbcb91de32e7c319698bf7d4388cbe3f61d444d7b"
+          },
+          {
+            "track": "720p",
+            "video_first_pts": 90000,
+            "video_last_pts": 536400,
+            "audio_first_pts": 90000,
+            "audio_last_pts": 539280,
+            "video_frames": 125,
+            "audio_packets": 235,
+            "audio_sample_rate": 48000,
+            "sha256": "248641c6724c55dd180d5ee80f4484c146aec6f9be0210efe28d215545ba310a"
+          }
+        ],
+        "published_at": "2026-11-27T07:21:19.926025Z",
+        "render_attempts": 1
+      },
+      "pulse": {
+        "audio_found": true,
+        "video_found": true,
+        "audio_onset_pts": 93849.375,
+        "video_onset_pts": 90000,
+        "absolute_delta_ms": 42.770833333333336
+      }
+    },
+    {
+      "entry": {
+        "actual_in_frame": 750,
+        "actual_out_frame": 825,
+        "segment_sequence": 6,
+        "plan": {
+          "rundown_rev": 4,
+          "item_id": "LIVE",
+          "planned_in_frame": 750,
+          "intended_slot": "CAM-A",
+          "reason": "rundown",
+          "source": {
+            "slot_id": "CAM-A",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 755,
+            "available_frames": 75,
+            "audio_channel": "stereo"
+          },
+          "overlays": []
+        },
+        "tracks": [
+          {
+            "track": "360p",
+            "video_first_pts": 2790000,
+            "video_last_pts": 3056400,
+            "audio_first_pts": 2791440,
+            "audio_last_pts": 3058320,
+            "video_frames": 75,
+            "audio_packets": 140,
+            "audio_sample_rate": 48000,
+            "sha256": "5ab2867bdbdec9775d41106693f1da6d0eb9dc8ecb3adb3f0b34db5e7800d60d"
+          },
+          {
+            "track": "720p",
+            "video_first_pts": 2790000,
+            "video_last_pts": 3056400,
+            "audio_first_pts": 2791440,
+            "audio_last_pts": 3058320,
+            "video_frames": 75,
+            "audio_packets": 140,
+            "audio_sample_rate": 48000,
+            "sha256": "70deaa7bb1258a9f814be6734909b27b99aa009e77528ff685c62d035a77d972"
+          }
+        ],
+        "published_at": "2026-11-27T07:21:49.794147Z",
+        "render_attempts": 1
+      },
+      "pulse": {
+        "audio_found": true,
+        "video_found": true,
+        "audio_onset_pts": 2795285.625,
+        "video_onset_pts": 2790000,
+        "absolute_delta_ms": 58.729166666666664
+      }
+    },
+    {
+      "entry": {
+        "actual_in_frame": 825,
+        "actual_out_frame": 950,
+        "segment_sequence": 7,
+        "plan": {
+          "rundown_rev": 4,
+          "item_id": "LIVE",
+          "planned_in_frame": 750,
+          "intended_slot": "CAM-A",
+          "reason": "source_unavailable",
+          "source": {
+            "slot_id": "CONT",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 0,
+            "available_frames": 0,
+            "audio_channel": "mute",
+            "built_in_slate": true
+          },
+          "overlays": []
+        },
+        "tracks": [
+          {
+            "track": "360p",
+            "video_first_pts": 3060000,
+            "video_last_pts": 3506400,
+            "audio_first_pts": 3060240,
+            "audio_last_pts": 3509520,
+            "video_frames": 125,
+            "audio_packets": 235,
+            "audio_sample_rate": 48000,
+            "sha256": "69a092766e2738b40876c09b7b9153ecd56df17fd983cfe375cb90eed678e2e0"
+          },
+          {
+            "track": "720p",
+            "video_first_pts": 3060000,
+            "video_last_pts": 3506400,
+            "audio_first_pts": 3060240,
+            "audio_last_pts": 3509520,
+            "video_frames": 125,
+            "audio_packets": 235,
+            "audio_sample_rate": 48000,
+            "sha256": "87a04f6ec5c2c4dd87a372d951745b2d055a1907217670d0ca9b26d485137364"
+          }
+        ],
+        "published_at": "2026-11-27T07:21:53.097687Z",
+        "render_attempts": 1
+      },
+      "pulse": {
+        "audio_found": false,
+        "video_found": false,
+        "audio_onset_pts": 0,
+        "video_onset_pts": 0,
+        "absolute_delta_ms": 0
+      }
+    },
+    {
+      "entry": {
+        "actual_in_frame": 1075,
+        "actual_out_frame": 1200,
+        "segment_sequence": 9,
+        "plan": {
+          "rundown_rev": 4,
+          "item_id": "LIVE",
+          "planned_in_frame": 750,
+          "intended_slot": "CAM-A",
+          "reason": "rundown",
+          "source": {
+            "slot_id": "CAM-A",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 1080,
+            "available_frames": 125,
+            "audio_channel": "stereo"
+          },
+          "overlays": []
+        },
+        "tracks": [
+          {
+            "track": "360p",
+            "video_first_pts": 3960000,
+            "video_last_pts": 4406400,
+            "audio_first_pts": 3960720,
+            "audio_last_pts": 4408080,
+            "video_frames": 125,
+            "audio_packets": 234,
+            "audio_sample_rate": 48000,
+            "sha256": "67707a3904b42394acd2aec659117116dfdbb04832314903ba376ce6bcf8f34d"
+          },
+          {
+            "track": "720p",
+            "video_first_pts": 3960000,
+            "video_last_pts": 4406400,
+            "audio_first_pts": 3960720,
+            "audio_last_pts": 4408080,
+            "video_frames": 125,
+            "audio_packets": 234,
+            "audio_sample_rate": 48000,
+            "sha256": "e841d9ba59ee07f66f0f8c22a317f736ea962d73059b9bdff71dd2765d18864c"
+          }
+        ],
+        "published_at": "2026-11-27T07:22:02.821016Z",
+        "render_attempts": 1
+      },
+      "pulse": {
+        "audio_found": true,
+        "video_found": true,
+        "audio_onset_pts": 3964565.625,
+        "video_onset_pts": 3960000,
+        "absolute_delta_ms": 50.729166666666664
+      }
+    },
+    {
+      "entry": {
+        "actual_in_frame": 1200,
+        "actual_out_frame": 1300,
+        "segment_sequence": 10,
+        "take_id": "5fcee353aaf1b3bbf3ace892",
+        "plan": {
+          "rundown_rev": 4,
+          "item_id": "LIVE",
+          "planned_in_frame": 750,
+          "intended_slot": "CAM-B",
+          "reason": "director",
+          "source": {
+            "slot_id": "CAM-B",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 1200,
+            "available_frames": 100,
+            "audio_channel": "stereo"
+          },
+          "transition_from": {
+            "slot_id": "CAM-A",
+            "blob": {
+              "bytes": 0
+            },
+            "input_offset_frames": 0,
+            "source_frame": 1205,
+            "available_frames": 100,
+            "audio_channel": "stereo"
+          },
+          "dissolve_frames": 10,
+          "overlays": []
+        },
+        "tracks": [
+          {
+            "track": "360p",
+            "video_first_pts": 4410000,
+            "video_last_pts": 4766400,
+            "audio_first_pts": 4410000,
+            "audio_last_pts": 4769040,
+            "video_frames": 100,
+            "audio_packets": 188,
+            "audio_sample_rate": 48000,
+            "sha256": "5385491cb5a8dcd1fcda532940e89495486a3107d1b29473f057ccdc3f43d0f8"
+          },
+          {
+            "track": "720p",
+            "video_first_pts": 4410000,
+            "video_last_pts": 4766400,
+            "audio_first_pts": 4410000,
+            "audio_last_pts": 4769040,
+            "video_frames": 100,
+            "audio_packets": 188,
+            "audio_sample_rate": 48000,
+            "sha256": "faf67a1d01e3eb8589f192016e66f0cad1ddc618df89b92e961babbc0c7f81fe"
+          }
+        ],
+        "published_at": "2026-11-27T07:22:06.845798Z",
+        "render_attempts": 1
+      },
+      "pulse": {
+        "audio_found": true,
+        "video_found": true,
+        "audio_onset_pts": 4413843.75,
+        "video_onset_pts": 4410000,
+        "absolute_delta_ms": 42.708333333333336
+      }
+    }
+  ],
+  "fallback_from_frame": 825,
+  "fallback_to_frame": 1075,
+  "introduction_frames": 750,
+  "missing_archive": {
+    "production_id": "0448eb8e6f97f2f24a006e73",
+    "asrun_rev": 12,
+    "state": "incomplete",
+    "track": "720p",
+    "requested_from_frame": 825,
+    "requested_to_frame": 1075,
+    "missing": [
+      {
+        "from_frame": 825,
+        "to_frame": 950,
+        "source": "unreadable_fragment",
+        "sequence": 7
+      }
+    ],
+    "segments": [
+      {
+        "sequence": 8,
+        "from_frame": 950,
+        "to_frame": 1075,
+        "bytes": 87232,
+        "sha256": "b2e19f45d5701405ad850b9fb020bc576f6bf6b3391d4fb3cdaf3091a08d7266",
+        "url": "/media/vod/11c11750995f3d6f8b9a0034/parts/720p/8.ts"
+      }
+    ]
+  },
+  "opening_inputs": [
+    {
+      "bytes": 226916,
+      "frames": 125,
+      "sha256": "e19b14c5a760167488feef7bca2822f1ff987d8cf5784dc5596d88e5fc2c8951",
+      "start_frame": 0
+    },
+    {
+      "bytes": 227480,
+      "frames": 125,
+      "sha256": "1d6aab35ab4683be3e8ea4569a54b1f6c5949775e783c7faa1feb3c2dd7b0462",
+      "start_frame": 125
+    },
+    {
+      "bytes": 225600,
+      "frames": 125,
+      "sha256": "2d899416606776a56ca1bf96df4b1e85624ece5542089daa4f6c09267f47fef4",
+      "start_frame": 250
+    },
+    {
+      "bytes": 225412,
+      "frames": 125,
+      "sha256": "2b39c3d9299cfd482b6e704e302d5a91d0da68f06aacc51c66d20dd87bfe1bf8",
+      "start_frame": 375
+    },
+    {
+      "bytes": 226352,
+      "frames": 125,
+      "sha256": "cea36f2c5d638056c1c562d0cdb9cb7e11af77975d3b7c403a92e96e1c38d123",
+      "start_frame": 500
+    },
+    {
+      "bytes": 226916,
+      "frames": 125,
+      "sha256": "2d30e0097fc4c3c9eded9f4a58b58429dc83514610f91a0d3f17746bda6f59a0",
+      "start_frame": 625
+    }
+  ],
+  "overlay": {
+    "overlay_id": "c0101bd561eb3f924555836c",
+    "template": "lower_third",
+    "text": "Studio guest",
+    "font_sha256": "197d9f3703b4c00af609178876a8d73e396f64fe438b2c871778566632374be3",
+    "font_size": 32,
+    "on_frame": 125,
+    "off_frame": 250,
+    "expected_off_frame": 250,
+    "actor": "graphics-operator"
+  },
+  "production": {
+    "id": "0448eb8e6f97f2f24a006e73",
+    "tenant": "studio",
+    "channel": "main",
+    "program_output": "11c11750995f3d6f8b9a0034",
+    "title": "Studio relay",
+    "timezone": "Asia/Shanghai",
+    "state": "sealed",
+    "rundown_rev": 4,
+    "asrun_rev": 12,
+    "control_epoch": 2,
+    "controller": "relief-director",
+    "control_until": "2026-11-27T07:22:59.939284Z",
+    "program_slot": "CAM-B",
+    "preview_slot": "CAM-B",
+    "fallback_slot": "CONT",
+    "program_frame": 1300,
+    "started_at": "2026-11-27T07:21:13.480926Z",
+    "sealed_at": "2026-11-27T07:22:06.857557Z",
+    "fps": 25,
+    "pts_per_second": 90000,
+    "audio_sample_rate": 48000
+  },
+  "rundown": {
+    "rundown_rev": 4,
+    "items": [
+      {
+        "id": "OPEN",
+        "title": "Opening titles",
+        "slot_id": "INTRO",
+        "kind": "clip",
+        "in_frame": 0,
+        "out_frame": 750,
+        "source_in_frame": 0,
+        "fixed": false
+      },
+      {
+        "id": "LIVE",
+        "title": "Studio show",
+        "slot_id": "CAM-A",
+        "kind": "live",
+        "in_frame": 750,
+        "out_frame": 1300,
+        "source_in_frame": 0,
+        "fixed": false
+      }
+    ],
+    "conflict_items": []
+  },
+  "take": {
+    "take_id": "5fcee353aaf1b3bbf3ace892",
+    "slot_id": "CAM-B",
+    "control_epoch": 2,
+    "transition": "dissolve",
+    "transition_frames": 10,
+    "command_id": "verified-command",
+    "state": "published",
+    "planned_frame": 1200,
+    "actual_frame": 1200,
+    "actual_pts": 4320000,
+    "program_output": "11c11750995f3d6f8b9a0034",
+    "actor": "relief-director"
+  },
+  "wall_outage_ms": 10174
+}

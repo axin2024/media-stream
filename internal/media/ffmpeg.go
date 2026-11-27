@@ -15,8 +15,9 @@ import (
 )
 
 type FFmpeg struct {
-	Path    string
-	Threads int
+	Path      string
+	ProbePath string
+	Threads   int
 }
 
 func (f FFmpeg) Check(ctx context.Context) error {

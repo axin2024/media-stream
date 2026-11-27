@@ -42,6 +42,13 @@ func (s *Store) Ingest(ctx context.Context, caller Identity, id string, sourceMS
 		if err != nil {
 			return Fragment{}, err
 		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil || owned {
+			if owned {
+				err = ErrFenced
+			}
+			return Fragment{}, err
+		}
 		var inputGeneration uint64
 		var origin int64
 		var active bool
@@ -107,6 +114,13 @@ func (s *Store) InputLost(ctx context.Context, caller Identity, id string) error
 		if err != nil {
 			return struct{}{}, err
 		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil {
+			return struct{}{}, err
+		}
+		if owned {
+			return struct{}{}, ErrFenced
+		}
 		if stream.State == "ending" || stream.State == "archived" {
 			return struct{}{}, ErrFenced
 		}
@@ -147,6 +161,13 @@ func (s *Store) RotateInput(ctx context.Context, caller Identity, id, source, id
 		}
 		if !caller.Allows(stream.Tenant, stream.Channel, id, "owner", "director") {
 			return Grant{}, ErrMissing
+		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil {
+			return Grant{}, err
+		}
+		if owned {
+			return Grant{}, ErrConflict
 		}
 		if stream.State == "ending" || stream.State == "archived" {
 			return Grant{}, ErrConflict
@@ -222,6 +243,13 @@ func (s *Store) PreferInput(ctx context.Context, caller Identity, id, source str
 		if !caller.Allows(stream.Tenant, stream.Channel, id, "owner", "director") {
 			return Session{}, ErrMissing
 		}
+		owned, err := productionOwnsSession(ctx, tx, id)
+		if err != nil {
+			return Session{}, err
+		}
+		if owned {
+			return Session{}, ErrConflict
+		}
 		if stream.Revision != revision || stream.State == "ending" || stream.State == "archived" {
 			return Session{}, ErrConflict
 		}
@@ -265,7 +293,8 @@ func (s *Store) FormatSource(ctx context.Context, caller Identity, id string) (i
 		return 0, ErrDenied
 	}
 	var duration int
-	err := s.db.QueryRowContext(ctx, `SELECT segment_ms FROM sessions WHERE id=? AND tenant=?`, id, caller.Tenant).Scan(&duration)
+	err := s.db.QueryRowContext(ctx, `SELECT segment_ms FROM sessions s WHERE s.id=? AND s.tenant=?
+		AND NOT EXISTS(SELECT 1 FROM productions p WHERE p.session_id=s.id)`, id, caller.Tenant).Scan(&duration)
 	if err != nil {
 		return 0, fmt.Errorf("read input format: %w", missing(err))
 	}

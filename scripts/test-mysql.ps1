@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string]$MySQLBin,
     [string]$FFmpeg,
-    [ValidateSet('Integration','Rehearsal')][string]$Scenario = 'Integration',
+    [ValidateSet('Integration','Rehearsal','Production','ProductionLoad')][string]$Scenario = 'Integration',
     [string]$Node,
     [string]$PreviousCLI,
     [string]$EvidenceDirectory = '.local/rehearsal'
@@ -32,6 +32,7 @@ $envValues = @{
     MEDIA_STREAM_TEST_DSN = "test_media:$password@tcp(127.0.0.1:$port)/media_stream"
     MEDIA_STREAM_TEST_UPGRADE_DSN = "test_media:$password@tcp(127.0.0.1:$port)/media_upgrade"
     MEDIA_STREAM_TEST_HTTP_DSN = "test_media:$password@tcp(127.0.0.1:$port)/media_http"
+    MEDIA_STREAM_TEST_PRODUCTION_DSN = "test_media:$password@tcp(127.0.0.1:$port)/media_production"
     MEDIA_STREAM_TEST_FFMPEG = $FFmpeg
     MEDIA_STREAM_MYSQL_DSN = "test_media:$password@tcp(127.0.0.1:$port)/media_stream"
     MEDIA_STREAM_SIGNING_KEY = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
@@ -53,11 +54,13 @@ CREATE DATABASE media_stream CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
 CREATE DATABASE media_upgrade CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
 CREATE DATABASE media_http CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
 CREATE DATABASE media_restore CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
+CREATE DATABASE media_production CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_bin;
 CREATE USER 'test_media'@'127.0.0.1' IDENTIFIED BY '$password';
 GRANT ALL PRIVILEGES ON media_stream.* TO 'test_media'@'127.0.0.1';
 GRANT ALL PRIVILEGES ON media_upgrade.* TO 'test_media'@'127.0.0.1';
 GRANT ALL PRIVILEGES ON media_http.* TO 'test_media'@'127.0.0.1';
 GRANT ALL PRIVILEGES ON media_restore.* TO 'test_media'@'127.0.0.1';
+GRANT ALL PRIVILEGES ON media_production.* TO 'test_media'@'127.0.0.1';
 "@ | Set-Content -LiteralPath $init -Encoding ascii
     $argsForServer = $baseArgs + @('--bind-address=127.0.0.1', "--port=$port", ('--init-file="{0}"' -f $init))
     $server = Start-Process -FilePath $mysqld -ArgumentList $argsForServer -PassThru -WindowStyle Hidden
@@ -79,6 +82,14 @@ GRANT ALL PRIVILEGES ON media_restore.* TO 'test_media'@'127.0.0.1';
     if ($Scenario -eq 'Integration') {
         go test -count=1 -timeout 4m -v ./...
         if ($LASTEXITCODE -ne 0) { throw 'Media integration tests failed' }
+    } elseif ($Scenario -eq 'Production' -or $Scenario -eq 'ProductionLoad') {
+        if (!$FFmpeg) { throw 'Production tests need -FFmpeg' }
+        if ($Scenario -eq 'ProductionLoad') {
+            go test -count=1 -timeout 75m -v ./internal/web -run '^TestMySQLProductionCapacity$'
+        } else {
+            go test -count=1 -timeout 3m -v ./internal/web -run '^TestMySQLProductionRehearsal$'
+        }
+        if ($LASTEXITCODE -ne 0) { throw 'Production acceptance failed' }
     } else {
         if (!$FFmpeg) { throw 'Rehearsal needs -FFmpeg' }
         & (Join-Path $PSScriptRoot 'rehearsal.ps1') -Fixture $fixture -FFmpeg $FFmpeg -MySQLBin $MySQLBin -MySQLPort $port `

@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Media Stream · 直播工作台</title>
   <link rel="stylesheet" href="/assets/studio.css">
+  <link rel="stylesheet" href="/assets/production.css">
   <script defer src="/assets/hls.min.js"></script>
   <script defer src="/assets/studio.js"></script>
+  <script defer src="/assets/production.js"></script>
 </head>
 <body>
   <header class="top">
@@ -21,6 +23,11 @@
   <main>
     <div class="notice" id="notice" role="status" aria-live="polite">输入工作台凭据查看频道和回放。</div>
     <div id="workspace" hidden>
+      <nav class="studio-nav" aria-label="工作台">
+        <button id="show-studio" type="button" class="secondary" aria-pressed="true">直播与回放</button>
+        <button id="show-production" type="button" class="secondary" aria-pressed="false" hidden>制作导播</button>
+      </nav>
+      <div id="live-workbench">
       <div class="heading">
         <div><span class="eyebrow">直播与点播</span><h1>直播工作台</h1></div>
         <button id="reload" class="secondary">刷新目录</button>
@@ -139,6 +146,133 @@
         <h2>运维概况</h2>
         <div class="ops-grid"><div><h3>转码节点</h3><ul id="nodes"></ul></div><div><h3>租户小时流量</h3><ul id="usage"></ul></div></div>
       </section>
+      </div>
+      <div id="production-workbench" hidden>
+        <div class="heading production-heading">
+          <h1>制作导播台</h1>
+          <div class="buttons"><label>制作节目 <select id="production-select"><option value="">选择节目</option></select></label>
+            <button id="production-refresh" class="secondary" type="button">刷新列表</button>
+            <button id="production-more" class="secondary" type="button" hidden>更多节目</button></div>
+        </div>
+        <p id="production-status" class="notice" role="status" aria-live="polite"></p>
+        <details id="production-create" class="panel" hidden>
+          <summary>为已打开的会话创建制作</summary>
+          <form id="production-create-form">
+            <label>输出会话编号 <input name="session_id" required></label>
+            <label>节目名称 <input name="title" maxlength="160" required></label>
+            <label>频道时区 <input name="timezone" value="Asia/Shanghai" required></label>
+            <label>备用垫片槽位 <input name="fallback_slot" value="CONT" required></label>
+            <button>创建节目</button>
+          </form>
+        </details>
+        <div id="production-selected" hidden>
+          <div class="production-stage">
+            <section class="panel production-output" aria-labelledby="production-output-title">
+              <div class="section-heading"><h2 id="production-output-title">主输出</h2><span id="production-state" class="state"></span></div>
+              <video id="production-video" controls playsinline preload="none" aria-label="主节目输出"></video>
+              <div class="buttons"><button id="production-play" type="button" class="secondary">播放主输出</button><span id="production-player-status" aria-live="polite"></span></div>
+              <dl class="production-facts">
+                <div><dt>当前画面</dt><dd id="production-program"></dd></div>
+                <div><dt>预监</dt><dd id="production-preview-fact"></dd></div>
+                <div><dt>节目时码</dt><dd id="production-frame"></dd></div>
+                <div><dt>下一段</dt><dd id="production-next"></dd></div>
+              </dl>
+              <p id="production-since"></p>
+            </section>
+            <section class="panel" aria-labelledby="production-monitor-title">
+              <div class="section-heading"><h2 id="production-monitor-title">机位监看</h2><button id="production-monitor-refresh" type="button" class="secondary">载入预监</button></div>
+              <div id="production-monitors" class="production-monitors"></div>
+              <label id="production-monitor-bank" hidden>机位组 <select id="production-monitor-page"></select></label>
+            </section>
+          </div>
+          <section id="production-control" class="panel production-section" aria-labelledby="production-control-title">
+            <h2 id="production-control-title">切换与接管</h2>
+            <p id="production-controller"></p>
+            <div class="buttons">
+              <button id="production-claim" type="button">领取或续期控制</button>
+              <button id="production-start" type="button" class="secondary">开播</button>
+              <button id="production-end" type="button" class="danger">封存节目</button>
+            </div>
+            <form id="production-take-form">
+              <label>转场 <select name="transition"><option value="cut">硬切</option><option value="dissolve">溶解</option></select></label>
+              <label>溶解帧数 <input type="number" name="transition_frames" value="10" min="2" max="25"></label>
+              <button id="production-take">TAKE</button>
+            </form>
+            <p id="production-take-result" aria-live="polite"></p>
+          </section>
+          <details id="production-slots" class="panel production-section" hidden>
+            <summary>输入配置、校时与分片</summary>
+            <form id="production-slot-form">
+              <label>槽位编号 <input name="slot" required></label><label>名称 <input name="title" required maxlength="160"></label>
+              <label>来源 <select name="kind"><option value="live">直播</option><option value="clip">片段</option><option value="slate">垫片</option></select></label>
+              <label>节目声道 <select name="audio_channel"><option value="stereo">立体声</option><option value="left">左声道</option><option value="right">右声道</option><option value="mute">静音</option></select></label>
+              <button>保存槽位</button>
+            </form>
+            <form id="production-clock-form">
+              <label>直播槽位 <select name="slot" required></select></label>
+              <fieldset><legend>三次时钟观测（毫秒）</legend>
+                <label>源 1 <input name="source1" type="number" min="0" required></label><label>节目 1 <input name="program1" type="number" min="0" required></label>
+                <label>源 2 <input name="source2" type="number" min="0" required></label><label>节目 2 <input name="program2" type="number" min="0" required></label>
+                <label>源 3 <input name="source3" type="number" min="0" required></label><label>节目 3 <input name="program3" type="number" min="0" required></label>
+              </fieldset>
+              <button>校准时钟</button>
+            </form>
+            <form id="production-input-form">
+              <label>导入槽位 <select name="slot" required></select></label>
+              <label>源首帧 <input name="frame" type="number" min="0" value="0" required></label>
+              <label>帧数 <input name="frames" type="number" min="1" max="250" value="125" required></label>
+              <label>独立 MPEG-TS 片段 <input name="file" type="file" accept=".ts,video/mp2t" required></label>
+              <button>上传片段</button>
+            </form>
+            <form id="production-lost-form"><label>失联直播源 <select name="slot" required></select></label><button class="danger">报告失联</button></form>
+          </details>
+          <section class="panel production-section" aria-labelledby="production-rundown-title">
+            <div class="section-heading"><h2 id="production-rundown-title">节目串联单</h2><span id="production-rundown-rev" class="state"></span></div>
+            <ol id="production-rundown-list" class="production-rundown"></ol>
+            <div id="production-rundown-editor" hidden>
+              <div class="buttons">
+                <button id="production-rundown-add" type="button" class="secondary">添加段落</button>
+                <button id="production-rundown-save" type="button">提交播出版</button>
+                <button id="production-rundown-reset" type="button" class="secondary">重载已确认版本</button>
+              </div>
+              <form id="production-extension-form"><label>延长直播 <select name="item" required></select></label>
+                <label>延长秒数 <input name="seconds" type="number" min="1" max="3600" value="30" required></label><button>检查并顺延</button></form>
+            </div>
+            <p id="production-rundown-conflict" role="status"></p>
+          </section>
+          <section id="production-graphics" class="panel production-section" aria-labelledby="production-graphics-title">
+            <h2 id="production-graphics-title">图文包装</h2>
+            <form id="production-graphic-form">
+              <label>模板 <select name="template"><option value="lower_third">字幕条</option><option value="logo">文字台标</option><option value="timer">节目时钟</option></select></label>
+              <label>文字 <input name="text" maxlength="320"></label><label>字号 <input name="font_size" type="number" min="18" max="72" value="32" required></label>
+              <label>上屏时码（留空则下一片段） <input name="on_frame" placeholder="00:00:00:00"></label>
+              <label>持续帧数 <input name="duration_frames" type="number" min="1" max="15000" value="125" required></label>
+              <button name="action" value="preview" class="secondary">预览图层</button><button name="action" value="publish">安排上屏</button>
+            </form>
+            <img id="production-graphic-preview" alt="包装预览" hidden>
+            <div class="buttons"><button id="production-graphic-clear" type="button" class="danger">清屏</button></div>
+            <ul id="production-graphic-list"></ul>
+          </section>
+          <section class="panel production-section" aria-labelledby="production-archive-title">
+            <div class="section-heading"><h2 id="production-archive-title">实际播出单与录像</h2><span id="production-asrun-rev" class="state"></span></div>
+            <div class="buttons"><button id="production-asrun-load" class="secondary" type="button">读取实际播出单</button>
+              <button id="production-asrun-more" class="secondary" type="button" hidden>更多实际段落</button>
+              <button id="production-asrun-export" type="button" hidden>导出播出记录</button></div>
+            <ol id="production-asrun-list" class="production-asrun"></ol>
+            <form id="production-archive-form" hidden>
+              <label>起始时码 <input name="from" value="00:00:00:00" required></label>
+              <label>结束时码 <input name="to" required></label>
+              <label>回放画质 <select name="track"><option>720p</option><option>360p</option><option>240p</option></select></label>
+              <button id="production-archive-check">核验所选区间</button>
+            </form>
+            <p id="production-archive-status" role="status"></p>
+            <ul id="production-archive-missing"></ul>
+            <div class="buttons"><button id="production-archive-play" class="secondary" type="button" hidden>播放所选区间</button>
+              <button id="production-archive-export" class="secondary" type="button" hidden>导出交付清单</button></div>
+            <video id="production-archive-video" controls playsinline preload="none" aria-label="归档区间" hidden></video>
+          </section>
+        </div>
+      </div>
     </div>
   </main>
 </body>

@@ -20,32 +20,43 @@ import (
 	"strings"
 	"time"
 
+	"github.com/axin2024/media-stream/internal/catalog"
 	"github.com/axin2024/media-stream/internal/media"
 )
 
 var sessionID = regexp.MustCompile(`^[0-9a-f]{24}$`)
+var productionSlotID = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$`)
 
 func pushCommand(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, args []string) error {
 	origin := flags.String("origin", "http://127.0.0.1:8080", "HTTPS origin or loopback HTTP origin")
 	session := flags.String("session", "", "session ID from the opening receipt")
+	production := flags.String("production", "", "production ID for multiview playout")
+	slot := flags.String("slot", "", "slot ID on the production programme")
 	source := flags.String("source", "", "input file or supported FFmpeg stream URL")
 	duration := flags.Int("segment-ms", 4_000, "session fragment duration")
 	clock := flags.Int64("clock-start-ms", 0, "source clock at the start of this input")
 	engine := flags.String("ffmpeg", "ffmpeg", "FFmpeg executable")
+	probe := flags.String("ffprobe", "ffprobe", "FFprobe executable for production fragment validation")
 	threads := flags.Int("threads", 2, "FFmpeg threads")
 	fast := flags.Bool("fast", false, "process file input without simulating real time")
 	lost := flags.Bool("notify-lost", false, "report this input as lost after its source ends")
 	if err := parse(flags, args); err != nil {
 		return err
 	}
-	target, err := sourceURL(*origin, *session)
+	target, err := sourceURL(*origin, *session, *production, *slot)
 	if err != nil {
 		return err
 	}
 	token := os.Getenv("MEDIA_STREAM_PUSH_TOKEN")
+	if *production != "" {
+		token = os.Getenv("MEDIA_STREAM_PRODUCTION_TOKEN")
+		if *clock%catalog.ProductionFrameMS != 0 {
+			return errors.New("production source clock must start on a 40 ms frame boundary")
+		}
+	}
 	if len(token) != 64 || *source == "" || *duration < 1_000 || *duration > 10_000 || *duration%1_000 != 0 ||
 		*clock < 0 || *clock > math.MaxInt64-172_800_000 || *threads < 1 || *threads > 16 {
-		return errors.New("set the push token, source, and the session's segment duration")
+		return errors.New("set the credential, source, and a segment duration from 1 to 10 seconds")
 	}
 	if strings.Contains(*engine, "/") || strings.Contains(*engine, "\\") {
 		absolute, err := filepath.Abs(*engine)
@@ -61,13 +72,18 @@ func pushCommand(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, arg
 	defer os.RemoveAll(dir)
 	processCtx, stop := context.WithCancel(ctx)
 	defer stop()
-	encoder := media.FFmpeg{Path: *engine, Threads: *threads}
+	encoder := media.FFmpeg{Path: *engine, ProbePath: *probe, Threads: *threads}
+	partition := encoder.Partition
+	if *production != "" {
+		partition = encoder.PartitionProduction
+	}
 	complete := make(chan error, 1)
-	go func() { complete <- encoder.Partition(processCtx, *source, dir, *duration, *fast) }()
+	go func() { complete <- partition(processCtx, *source, dir, *duration, *fast) }()
 
 	client := &http.Client{Timeout: 35 * time.Second,
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-	sender := sourceSender{Client: client, URL: target, Token: token, Root: dir, Duration: *duration, Clock: *clock, Log: log}
+	sender := sourceSender{Client: client, URL: target, Token: token, Root: dir, Duration: *duration, Clock: *clock,
+		Production: *production != "", Encoder: encoder, Log: log}
 	timer := time.NewTicker(100 * time.Millisecond)
 	defer timer.Stop()
 	for {
@@ -96,25 +112,35 @@ func pushCommand(ctx context.Context, log *slog.Logger, flags *flag.FlagSet, arg
 	}
 }
 
-func sourceURL(origin, session string) (string, error) {
+func sourceURL(origin, session, production, slot string) (string, error) {
 	value, err := url.Parse(origin)
 	if err != nil || value.Hostname() == "" || value.User != nil || value.RawQuery != "" || value.Fragment != "" ||
-		!sessionID.MatchString(session) || (value.Scheme != "https" &&
-		!(value.Scheme == "http" && (value.Hostname() == "localhost" || net.ParseIP(value.Hostname()).IsLoopback()))) {
-		return "", errors.New("origin must use HTTPS or loopback HTTP and a valid session ID")
+		(value.Scheme != "https" &&
+			!(value.Scheme == "http" && (value.Hostname() == "localhost" || net.ParseIP(value.Hostname()).IsLoopback()))) {
+		return "", errors.New("origin must use HTTPS or loopback HTTP")
 	}
-	return strings.TrimRight(value.String(), "/") + "/api/sessions/" + session, nil
+	base := strings.TrimRight(value.String(), "/")
+	if sessionID.MatchString(production) && productionSlotID.MatchString(slot) && session == "" {
+		return base + "/api/productions/" + production + "/slots/" + slot, nil
+	}
+	if sessionID.MatchString(session) && production == "" && slot == "" {
+		return base + "/api/sessions/" + session, nil
+	}
+	return "", errors.New("provide a session ID or a production ID and slot")
 }
 
 type sourceSender struct {
-	Client   *http.Client
-	URL      string
-	Token    string
-	Root     string
-	Duration int
-	Clock    int64
-	Next     int
-	Log      *slog.Logger
+	Client     *http.Client
+	URL        string
+	Token      string
+	Root       string
+	Duration   int
+	Clock      int64
+	Next       int
+	SentFrames int64
+	Log        *slog.Logger
+	Production bool
+	Encoder    media.FFmpeg
 }
 
 func (p *sourceSender) deliver(ctx context.Context) error {
@@ -150,10 +176,18 @@ func (p *sourceSender) deliver(ctx context.Context) error {
 			return errors.New("unexpected segment index from FFmpeg")
 		}
 		duration := min(int(math.Round((to-from)*1_000)), p.Duration)
-		if duration >= 100 {
-			if err := p.put(ctx, name, index, duration); err != nil {
+		if duration >= 100 || p.Production {
+			var frames int
+			if p.Production {
+				frames, err = p.Encoder.ProductionFragmentFrames(ctx, filepath.Join(p.Root, name))
+				if err != nil {
+					return err
+				}
+			}
+			if err := p.put(ctx, name, index, duration, frames); err != nil {
 				return err
 			}
+			p.SentFrames += int64(frames)
 		}
 		p.Next++
 		if err := os.Remove(filepath.Join(p.Root, name)); err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -162,9 +196,9 @@ func (p *sourceSender) deliver(ctx context.Context) error {
 	}
 }
 
-func (p *sourceSender) put(ctx context.Context, name string, index, duration int) error {
+func (p *sourceSender) put(ctx context.Context, name string, index, duration, frames int) error {
 	for attempt := range 12 {
-		retry, err := p.send(ctx, name, index, duration)
+		retry, err := p.send(ctx, name, index, duration, frames)
 		if err == nil {
 			return nil
 		}
@@ -182,7 +216,7 @@ func (p *sourceSender) put(ctx context.Context, name string, index, duration int
 	return errors.New("source delivery exhausted retries")
 }
 
-func (p *sourceSender) send(ctx context.Context, name string, index, duration int) (bool, error) {
+func (p *sourceSender) send(ctx context.Context, name string, index, duration, frames int) (bool, error) {
 	file, err := os.Open(filepath.Join(p.Root, name))
 	if err != nil {
 		return false, err
@@ -192,15 +226,24 @@ func (p *sourceSender) send(ctx context.Context, name string, index, duration in
 	if err != nil {
 		return false, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, p.URL+"/input", file)
+	sourceMS := p.Clock + int64(index)*int64(p.Duration)
+	path := p.URL + "/input"
+	if p.Production {
+		path += "/" + strconv.FormatInt(p.Clock/catalog.ProductionFrameMS+p.SentFrames, 10)
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, path, file)
 	if err != nil {
 		return false, err
 	}
 	req.ContentLength = info.Size()
 	req.Header.Set("Authorization", "Bearer "+p.Token)
 	req.Header.Set("Content-Type", "video/mp2t")
-	req.Header.Set("X-Source-Time-Ms", strconv.FormatInt(p.Clock+int64(index)*int64(p.Duration), 10))
-	req.Header.Set("X-Source-Duration-Ms", strconv.Itoa(duration))
+	if p.Production {
+		req.Header.Set("X-Frame-Count", strconv.Itoa(frames))
+	} else {
+		req.Header.Set("X-Source-Time-Ms", strconv.FormatInt(sourceMS, 10))
+		req.Header.Set("X-Source-Duration-Ms", strconv.Itoa(duration))
+	}
 	res, err := p.Client.Do(req)
 	if err != nil {
 		return ctx.Err() == nil, err
@@ -214,7 +257,7 @@ func (p *sourceSender) send(ctx context.Context, name string, index, duration in
 		Code string `json:"code"`
 	}
 	_ = json.NewDecoder(io.LimitReader(res.Body, 8_192)).Decode(&failure)
-	if res.StatusCode == http.StatusConflict && failure.Code == "fenced" {
+	if !p.Production && res.StatusCode == http.StatusConflict && failure.Code == "fenced" {
 		p.Log.Info("discard expired source fragment", "sequence", index)
 		return false, nil
 	}
@@ -223,7 +266,11 @@ func (p *sourceSender) send(ctx context.Context, name string, index, duration in
 }
 
 func (p *sourceSender) lost(ctx context.Context) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.URL+"/input-lost", nil)
+	path := p.URL + "/input-lost"
+	if p.Production {
+		path = p.URL + "/lost"
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, nil)
 	if err != nil {
 		return err
 	}

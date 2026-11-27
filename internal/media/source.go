@@ -26,6 +26,16 @@ func (f FFmpeg) Sample(ctx context.Context, output string, seconds, width, heigh
 
 // Partition writes a segment list as FFmpeg closes MPEG-TS files in workspace.
 func (f FFmpeg) Partition(ctx context.Context, input, workspace string, segmentMS int, fast bool) error {
+	return f.partition(ctx, input, workspace, segmentMS, fast, "fps=25")
+}
+
+func (f FFmpeg) PartitionProduction(ctx context.Context, input, workspace string, segmentMS int, fast bool) error {
+	// Align timestamps to the start of the frame interval. Rounding to nearest can
+	// create an extra video frame and an audio-only part when AAC leads by 21 ms.
+	return f.partition(ctx, input, workspace, segmentMS, fast, "fps=25:round=down")
+}
+
+func (f FFmpeg) partition(ctx context.Context, input, workspace string, segmentMS int, fast bool, videoFilter string) error {
 	if f.Path == "" || f.Threads < 1 || segmentMS < 1_000 || segmentMS > 10_000 || segmentMS%1_000 != 0 {
 		return fmt.Errorf("invalid input encoder settings")
 	}
@@ -42,7 +52,7 @@ func (f FFmpeg) Partition(ctx context.Context, input, workspace string, segmentM
 		args = append(args, "-re")
 	}
 	args = append(args, "-i", input, "-map", "0:v:0", "-map", "0:a:0?", "-map_metadata", "-1",
-		"-vf", "fps=25", "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+		"-vf", videoFilter, "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
 		"-threads:v", strconv.Itoa(f.Threads), "-g", strconv.Itoa(segmentMS/40), "-keyint_min", strconv.Itoa(segmentMS/40),
 		"-sc_threshold", "0", "-bf", "0", "-c:a", "aac", "-b:a", "128k", "-ar", "48000",
 		"-f", "segment", "-segment_format", "mpegts", "-segment_format_options", "mpegts_flags=+resend_headers",
